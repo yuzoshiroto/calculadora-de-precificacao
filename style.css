@@ -1,0 +1,2394 @@
+/* Importação da Fonte e Reset Básico */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --bg-dark: #1a1c20;
+    --bg-light: #25282e;
+    --bg-lighter: #30343c;
+    --primary: #00bfa6;
+    --text-primary: #f1f1f1;
+    --text-secondary: #a0a0a0;
+    --border-color: #40444c;
+    --profit-high: #28a745;
+    --profit-medium: #ffc107;
+    --profit-low: #dc3545;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* --- Estilos para a Barra de Rolagem (Scrollbar) --- */
+
+/* Para navegadores baseados em WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark); /* Fundo da barra de rolagem */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--bg-lighter); /* Cor da parte móvel */
+    border-radius: 20px;
+    border: 3px solid var(--bg-dark); /* Cria uma "margem" ao redor do thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-secondary); /* Cor ao passar o mouse */
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- Barra Lateral (Sidebar) --- */
+.sidebar {
+    width: 325px;
+    background-color: var(--bg-light);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    position: relative;
+    /* Necessário para posicionar o botão de toggle */
+    transition: width 0.3s ease;
+    /* Animação de expandir/recolher */
+}
+
+/* Esconde o botão de toggle da sidebar por padrão. Ele será reativado na media query. */
+.sidebar-toggle-btn {
+    display: none;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.logo img {
+    max-width: 100px;
+}
+
+.sidebar-sticky-content {
+    position: fixed; /* Fixa o container na tela */
+    top: 144px; /* Distância do topo (abaixo do logo) */
+    width: 270px; /* Largura da sidebar (325px) - padding (2*1.5rem = 32px) */
+    height: calc(100vh - 190px); /* Altura calculada para não sobrepor o rodapé */
+    overflow-y: auto; /* Adiciona rolagem se o conteúdo for maior que a altura */
+    overflow-x: hidden; /* Remove a rolagem horizontal */
+    padding-bottom: 1rem;
+}
+
+.sidebar h3 {
+    color: var(--primary);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--primary);
+    padding-left: 10px;
+}
+
+.sidebar h3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Empurra o ícone para a direita */
+}
+
+.icon {
+    margin-right: 8px;
+    font-style: normal;
+    /* Previne que o emoji fique itálico/distorcido */
+}
+
+/* --- Estilos para o Tooltip de Informação --- */
+.info-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.info-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--text-secondary);
+    color: var(--bg-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-style: normal;
+    cursor: help;
+    padding-top: 3px;
+    /* Ajuste fino para centralização vertical */
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 220px;
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    position: fixed;
+    /* Chave da solução: posiciona em relação à janela */
+    z-index: 999;
+    /* Garante que o balão fique sobre todos os outros elementos */
+    /* As propriedades top, left e margin são agora controladas pelo JavaScript */
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.85rem;
+    font-weight: 400;
+    border: 1px solid var(--border-color);
+}
+
+.info-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.param-group {
+    background-color: var(--bg-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.param-subtitle {
+    font-size: 1rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.param-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.param-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.8rem 0;
+}
+
+.param-total {
+    margin-top: 1rem;
+    /* A linha foi removida para um visual mais limpo */
+}
+
+.param-total label {
+    font-weight: 600;
+}
+
+.param-total span {
+    font-weight: 700;
+    color: var(--primary);
+    width: 100px;
+    /* Mesma largura do input */
+    text-align: center;
+    /* Centraliza o texto */
+}
+
+.param-item label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.param-item input {
+    width: 80px;
+    padding: 5px 8px;
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Novo: Container para o ícone 'i' e o campo de input */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Espaço entre o ícone e o campo */
+}
+
+.param-item input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Regra global para remover as setinhas de todos os inputs numéricos */
+input[type="number"] {
+    -moz-appearance: textfield;
+    /* Firefox */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    /* Chrome, Safari, Edge, Opera */
+    margin: 0;
+    /* Remove espaço extra */
+}
+
+.form-field {
+    margin-bottom: 12px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+#service-manager input {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+}
+
+/* Estilo para o campo de seleção (dropdown) */
+#service-manager select {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+    -webkit-appearance: none;
+    /* Remove a aparência padrão no Chrome/Safari */
+    -moz-appearance: none;
+    /* Remove a aparência padrão no Firefox */
+    appearance: none;
+    /* Remove a aparência padrão em navegadores modernos */
+    /* Adiciona uma seta personalizada usando SVG embutido */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+    /* Garante que o texto não sobreponha a seta */
+}
+
+/* Deixa o texto da opção placeholder com a cor secundária */
+#service-manager select:invalid {
+    color: var(--text-secondary);
+}
+
+
+.form-field .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.checkbox-label span {
+    white-space: nowrap;
+    /* Garante que o texto não quebre para a próxima linha */
+}
+
+/* Estilos específicos para o checkbox no bloco de parâmetros globais */
+.param-checkbox-field {
+    margin-top: 1rem;
+    /* Espaçamento acima do checkbox */
+}
+
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+}
+
+
+#add-service-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+#add-service-btn:hover {
+    background-color: #00a793;
+}
+
+.sidebar-footer {
+    display: none; /* Remove o rodapé da sidebar */
+    margin-top: auto;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* --- Conteúdo Principal --- */
+.main-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    overflow-y: auto;
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+/* Novo: Wrapper para o conteúdo do header */
+.header-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Altera o alinhamento vertical do cabeçalho nas páginas de calculadora */
+.single-page-container .header-content-wrapper {
+    align-items: flex-start; /* Alinha os itens (título e botão) ao topo */
+}
+
+/* Adiciona uma margem superior ao botão para ajuste fino da posição vertical */
+.single-page-container #back-to-dashboard-btn {
+    white-space: nowrap; /* Impede a quebra de linha do texto */
+    margin-top: 13px; /* Ajuste este valor para mover o botão para cima ou para baixo */
+}
+
+/* Adiciona margem superior ao botão da página de custo de produto */
+.single-page-container a.header-tab-button:not(#back-to-dashboard-btn) {
+    margin-top: 15px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+/* Novo: Estilo para o botão-aba no header */
+.header-tab-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.header-tab-button:hover {
+    background-color: var(--bg-light);
+    border-color: var(--primary);
+}
+
+/* Novo: Grupo de botões no header */
+.header-buttons-group {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Novo: Wrapper para o cabeçalho da calculadora (título + status) */
+.calculator-header-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    /* Substitui a margem do .section-subtitle */
+}
+
+/* Novo: Estilo para a etiqueta de status do serviço */
+.service-status-label {
+    background-color: var(--bg-lighter);
+    color: var(--text-secondary);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    display: none;
+    /* Oculto por padrão, ativado via JS */
+}
+
+/* Novo: Wrapper para o subtítulo que vira dropdown */
+.subtitle-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    /* Faz o wrapper ter o tamanho do título */
+    cursor: pointer;
+}
+
+/* Novo: Adiciona uma seta para indicar que é um dropdown */
+.subtitle-dropdown-wrapper::after {
+    content: '▼';
+    /* Usa o caractere de seta para baixo, como nos filtros */
+    position: absolute;
+    top: 50%;
+    right: 0.2rem;
+    /* Posição negativa para afastar a seta do texto */
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 1em;
+    /* Tamanho da seta */
+    pointer-events: none;
+    /* Garante que a seta não bloqueie o clique no select */
+}
+
+/* Novo: Gira a seta para cima quando o menu está aberto */
+.subtitle-dropdown-wrapper.open::after {
+    transform: translateY(-60%) rotate(180deg);
+    /* Ajuste fino para centralizar a seta quando aberta */
+}
+
+/* Novo: Select escondido que cobre o título */
+.service-selector-hidden {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    /* Totalmente transparente */
+    cursor: pointer;
+    font-size: 1.4rem;
+    /* Garante que a área de clique seja grande */
+    border: none;
+}
+
+/* Novo: Estiliza o dropdown quando aberto */
+.service-selector-hidden {
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.service-selector-hidden option {
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+/* Novo: Subtítulo para seções */
+.section-subtitle {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-bottom: 0;
+    /* A margem agora é controlada pelo .calculator-header-wrapper */
+    padding-left: 1rem;
+    padding-right: 2rem;
+    /* Adiciona espaço à direita para a seta */
+    border-left: 3px solid var(--primary);
+}
+
+/* Novo: Estilo para desativar a calculadora */
+.disabled-calculator {
+    opacity: 0.4;
+    pointer-events: none;
+    /* Bloqueia qualquer interação do mouse */
+}
+
+/* --- Dashboard e Gráfico --- */
+.dashboard-summary {
+    background-color: var(--bg-light);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.service-details h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.service-details #selected-service-name {
+    color: var(--primary);
+    /* Altera a cor do título do serviço selecionado para verde água */
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.2rem;
+}
+
+.detail-card {
+    background-color: var(--bg-dark);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.detail-card h4 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.detail-card span {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.3s;
+}
+
+/* Oculta a versão curta por padrão (para telas maiores que 1920px) */
+.admin-fee-label-short {
+    display: none;
+}
+
+/* Ajuste para o card de faturamento na calculadora de custo fixo */
+#revenue-section .detail-card {
+    width: fit-content;
+    min-width: 210px;
+    /* Garante uma largura mínima para o placeholder */
+}
+
+/* Deixa o placeholder do input de faturamento mais sutil */
+#revenue-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+    /* Reduz a opacidade para ficar ainda menos aparente */
+}
+
+/* Efeito de hover para o campo de faturamento na calculadora de custo fixo */
+#revenue-input:hover {
+    background-color: var(--bg-light) !important; /* Cinza um pouco mais claro */
+    border-radius: 5px; /* Bordas arredondadas para um visual mais suave */
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Novo: Grupo de cards de resumo */
+.summary-card-group {
+    display: flex;
+    gap: 2rem;
+    flex: 1.5; /* Faz o grupo ocupar 1.5x o espaço do card de faturamento */
+    background-color: var(--bg-light);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+/* Estilos para os novos cards de resumo na página de custo fixo */
+.summary-card-wrapper {
+    background-color: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    flex: 1; /* Faz com que os cards dividam o espaço igualmente */
+}
+
+/* Remove o estilo individual dos wrappers quando estão dentro de um grupo */
+.summary-card-group .summary-card-wrapper {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Reduz a largura do card de resultado em relação ao de despesas */
+.summary-card-group .summary-card-wrapper:last-child {
+    flex-grow: 0.8;
+}
+
+
+.summary-card-title {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card-percentage {
+    /* display: block; foi removido para permitir alinhamento horizontal */
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    /* margin-top: 4px; foi removido */
+}
+
+/* Novo: Grupo para alinhar valor e percentual lado a lado */
+.value-group {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+}
+
+
+.price-unviable {
+    color: var(--profit-low) !important;
+    font-weight: 700;
+}
+
+/* --- Cartões de Métricas --- */
+.metrics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    /* MUDANÇA: Reduzido o espaçamento entre os cards */
+    margin-top: 2rem;
+    max-width: 50%;
+    /* Define a largura máxima como 50% do container pai */
+    margin-left: auto;
+    /* Centraliza horizontalmente */
+    margin-right: auto;
+    /* Centraliza horizontalmente */
+}
+
+.metric-card {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.metric-card h3 {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.metric-card p {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Estilos específicos para o card da Lei do Salão Parceiro */
+.salao-parceiro-card h3 {
+    font-size: 1.3rem;
+    /* Aumentado para dar mais destaque */
+    font-weight: 600;
+    /* Deixa o título um pouco mais forte */
+}
+
+.salao-parceiro-card p {
+    font-size: 1.1rem;
+    /* Aumentado para melhor legibilidade */
+    font-weight: 400;
+    /* Peso de fonte normal */
+    color: var(--text-secondary);
+    /* Cor de texto padrão */
+    line-height: 1.5;
+}
+
+.salao-parceiro-card p strong {
+    font-weight: 700;
+}
+
+.salao-parceiro-card p.savings-positive strong {
+    color: var(--profit-high);
+    /* Verde para economia */
+}
+
+.salao-parceiro-card p.savings-warning strong {
+    color: var(--profit-medium);
+    /* Amarelo para aviso */
+}
+
+/* Estilos para o novo card com múltiplas informações */
+.multi-info-card h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    /* Aumenta o tamanho do título */
+    font-weight: 600;
+    /* Deixa o título mais forte */
+    /* Reduz o espaço entre o título e o conteúdo */
+}
+
+.multi-info-card {
+    width: 70%;
+    /* Diminui a largura em 30% */
+    margin-left: auto;
+    /* MUDANÇA: Empurra o card para a direita */
+    margin-right: 0;
+    /* MUDANÇA: Garante que ele fique colado na borda direita da coluna */
+}
+
+.multi-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    /* Reduz o espaço entre as linhas de informação */
+    width: 100%;
+}
+
+.info-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    /* Alinha pela base do texto para um visual mais limpo */
+    font-size: 1rem;
+    /* Tamanho da fonte para as linhas */
+    gap: 0.5rem;
+}
+
+.info-line span {
+    color: var(--text-secondary);
+    /* Cor mais suave para o label */
+}
+
+.info-line strong {
+    color: var(--primary);
+    /* Cor principal para o valor */
+    font-size: 1.8rem;
+}
+
+/* --- Tabela de Preços --- */
+.pricing-table-container {
+    background-color: var(--bg-light);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.table-wrapper {
+    overflow: auto;
+    /* Permite rolagem vertical e horizontal */
+    max-height: 60vh;
+    /* Define uma altura máxima para a tabela */
+    position: relative;
+    /* Cria o contexto para o cabeçalho sticky */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--bg-lighter);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Novo: Impede a capitalização para elementos específicos dentro de um 'th' */
+th .lowercase {
+    text-transform: none;
+}
+
+/* Removemos o padding padrão para que o div interno possa ocupar todo o espaço */
+.service-header {
+    padding: 0 !important;
+}
+
+/* Aplicamos os estilos flex e o padding ao container interno */
+.service-header-content {
+    display: flex;
+    /* Mantém o flexbox */
+    flex-direction: row;
+    /* Alinha os itens horizontalmente */
+    align-items: center;
+    /* Centraliza verticalmente */
+    padding: 12px 15px;
+    /* Adiciona o mesmo padding dos outros cabeçalhos para alinhar o conteúdo */
+    width: 350px;
+    /* Define uma largura fixa para a célula, evitando que ela empurre as outras. Ajuste se necessário. */
+    gap: 1.5rem;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#service-search-input {
+    /* Personalize a largura do campo de busca aqui. */
+    width: 220px;
+    padding: 4px 28px 4px 8px;
+    /* Padding direito aumentado para o ícone */
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+    font-weight: 400;
+    font-size: 0.8rem;
+}
+
+#service-search-input:focus {
+    outline: 1px solid var(--primary);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0;
+    display: none;
+    /* Oculto por padrão */
+}
+
+.search-wrapper.has-value .clear-search-btn {
+    display: block;
+    /* Exibe quando o wrapper tem a classe 'has-value' */
+}
+
+/* Ajuste para o header-content dentro do service-header-content */
+/* .service-header-content .header-content {} -- Removido pois não é mais necessário */
+
+tbody tr {
+    transition: background-color 0.2s;
+}
+
+tbody tr:hover,
+tbody tr.selected {
+    background-color: var(--bg-lighter);
+}
+
+td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+td input[type="number"],
+td input[type="text"].formatted-number-input {
+    width: 85px;
+    padding: 5px 8px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+td input[type="number"]:focus,
+td input[type="text"].formatted-number-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Estilos específicos para a tabela de Custo Fixo */
+#fixed-cost-table td input[type="number"], #variable-cost-table td input[type="number"],
+#fixed-cost-table td input[type="text"].formatted-number-input, #variable-cost-table td input[type="text"].formatted-number-input,
+#fixed-cost-table td input.text-input, #variable-cost-table td input.text-input {
+    background-color: #25282E;
+    border: 1px solid transparent;
+    font-size: 1rem;
+    font-weight: 400;
+    font-family: 'Poppins', sans-serif;
+}
+
+#fixed-cost-table td input[type="number"]:focus, #variable-cost-table td input[type="number"]:focus,
+#fixed-cost-table td input[type="text"].formatted-number-input:focus,
+#variable-cost-table td input[type="text"].formatted-number-input:focus,
+#fixed-cost-table td input.text-input:focus,
+#variable-cost-table td input.text-input:focus {
+    background-color: #1A1C20;
+    border-color: var(--primary);
+    /* Mantém o destaque ao focar, se desejado, ou pode ser removido/alterado */
+}
+
+td .input-with-symbol {
+    display: flex;
+    align-items: center;
+}
+
+.input-with-symbol input {
+    width: 60px;
+    /* Ajuste a largura conforme necessário */
+    text-align: center;
+}
+
+.input-with-symbol span {
+    margin-left: 5px;
+}
+
+.input-with-prefix {
+    display: flex;
+    align-items: center;
+}
+
+.input-with-prefix span {
+    margin-right: 5px;
+}
+
+/* Novo: Estilo para input com unidade de medida ao lado */
+.input-with-unit {
+    position: relative;
+    display: inline-flex; /* Usa inline-flex para alinhar o input e o span */
+    align-items: center;
+}
+
+.input-with-unit .unit-display {
+    margin-left: 5px; /* Adiciona um pequeno espaçamento entre o input e a unidade */
+    color: var(--text-secondary);
+    font-weight: 400;
+    /* As propriedades de posicionamento absoluto (right, top, transform) foram removidas */
+    /* O pointer-events: none é mantido para garantir que o texto não interfira com a interação do input */
+    pointer-events: none;
+}
+
+.profit-cell {
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 0.9rem;
+    text-shadow: -1px -1px 0 #1A1C20, 1px -1px 0 #1A1C20, -1px 1px 0 #1A1C20, 1px 1px 0 #1A1C20;
+}
+
+.profit-high {
+    background-color: var(--profit-high);
+}
+
+.profit-medium {
+    background-color: var(--profit-medium);
+}
+
+.profit-low {
+    background-color: var(--profit-low);
+}
+
+/* Novas classes para colorir o texto do lucro */
+.profit-text-high {
+    color: var(--profit-high);
+    font-weight: 700;
+}
+.profit-text-medium {
+    color: var(--profit-medium);
+    font-weight: 700;
+}
+.profit-text-low {
+    color: var(--profit-low);
+    font-weight: 700;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--profit-low);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.edit-service-btn {
+    color: var(--primary);
+    margin-right: 10px;
+    /* Espaço entre o ícone de editar e o de lixeira */
+}
+
+.save-service-btn {
+    color: var(--profit-high);
+    /* Mantém a cor verde para o ícone de salvar */
+    margin-right: 10px;
+    /* Espaço entre o ícone de salvar e o de configurar */
+}
+
+/* Estilo para o custo de produto "apagado" */
+.faded-product-cost {
+    color: var(--text-secondary); /* Usa a cor de texto secundária para um tom mais claro */
+    opacity: 0.5; /* Reduz a opacidade para um efeito "apagado" */
+}
+/* Estilo para a etiqueta de origem do produto na tabela */
+.product-origin-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+.action-btn:hover {
+    transform: scale(1.2);
+}
+
+/* --- Estilos para Células Editáveis na Tabela --- */
+.editable-cell-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Espaço entre o input e o ícone */
+}
+
+/* Ajusta a largura do input para dar espaço ao ícone */
+.editable-cell-wrapper .input-with-prefix input {
+    width: calc(100% - 10px);
+    /* Garante que o input não estoure a célula */
+}
+
+/* Estilo para o botão de alternar edição (lápis) */
+.toggle-edit-field-btn {
+    font-size: 1rem;
+    /* Tamanho menor para o lápis */
+    color: var(--text-secondary);
+    /* Cor cinza quando inativo */
+    padding: 2px;
+}
+
+.toggle-edit-field-btn.active {
+    color: var(--primary);
+    /* Cor verde quando ativo */
+    cursor: default;
+    /* Não mostra cursor de clique quando já está ativo */
+}
+
+.toggle-edit-field-btn:not(.active):hover {
+    color: var(--text-primary);
+    /* Cor branca ao passar o mouse em um inativo */
+}
+
+/* Estilo para o input quando ele não está editável */
+td input[readonly] {
+    background-color: var(--bg-lighter) !important;
+    /* Fundo um pouco mais escuro */
+    color: var(--text-secondary) !important;
+    /* Texto acinzentado */
+    cursor: not-allowed;
+    /* Mostra um cursor de "não permitido" */
+    border-color: var(--bg-lighter) !important;
+}
+
+/* --- Estilos para Ordenação da Tabela --- */
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-icons {
+    cursor: pointer;
+    color: var(--text-secondary);
+    width: 1em;
+    /* Garante que o espaço seja consistente */
+    text-align: center;
+}
+
+.sort-icon {
+    font-size: 1.2em;
+    /* Tamanho do ícone */
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+/* Ícone padrão (sem filtro): representa ordenação */
+.sort-icon::before {
+    content: '↕';
+    /* Seta dupla para cima e para baixo */
+    opacity: 0.5;
+}
+
+.sort-icons.active .sort-icon::before,
+.sort-icons.active {
+    color: var(--primary);
+}
+
+/* --- Estilos para Drag & Drop --- */
+tbody tr.drag-over {
+    /* Adiciona uma borda superior para indicar onde o item será solto */
+    border-top: 2px solid var(--primary);
+}
+
+/* Ícone para ordenação crescente (menor para maior) */
+.sort-icons.sort-asc .sort-icon::before {
+    content: '▲';
+    opacity: 1;
+}
+
+/* Ícone para ordenação decrescente (maior para menor) */
+.sort-icons.sort-desc .sort-icon::before {
+    content: '▼';
+    opacity: 1;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 1200px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-content {
+        padding: 2rem;
+    }
+}
+
+/* --- Novas Seções de Análise --- */
+.analysis-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.breakdown-card,
+.analysis-tips {
+    background-color: var(--bg-light);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.breakdown-card {
+    display: flex;
+    flex-direction: column;
+    /* Organiza o header e o body verticalmente */
+    gap: 1.5rem;
+}
+
+.breakdown-header {
+    width: 100%;
+    /* A linha de separação foi removida. O espaçamento é mantido pelo 'gap' do card. */
+}
+
+.breakdown-body {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    width: 100%;
+}
+
+.breakdown-details {
+    flex: 1;
+    /* Ocupa o espaço disponível */
+}
+
+.breakdown-chart-container {
+    flex-basis: 400px;
+    /* Largura fixa para o gráfico */
+    width: 400px;
+    /* Garante que a largura seja aplicada */
+    height: 400px;
+    /* Define uma altura para o gráfico poder crescer */
+    position: relative;
+    /* Necessário para posicionar o texto no centro */
+}
+
+.breakdown-chart-container canvas {
+    position: relative;
+    /* Cria um contexto de empilhamento para o canvas */
+    z-index: 2;
+    /* Coloca o canvas (e seu tooltip) na camada de cima */
+}
+
+.chart-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    /* Garante que o texto não bloqueie o mouse */
+    z-index: 1;
+    /* Coloca o texto na camada de baixo */
+    width: 100%;
+    /* Garante que o texto se centralize corretamente */
+}
+
+/* Esconde o container de economia por padrão */
+.chart-savings-info {
+    display: none;
+}
+
+
+.chart-center-text .value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.chart-center-text .label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.breakdown-card h3,
+.analysis-tips-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.breakdown-subtitle,
+.analysis-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.breakdown-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* Reduzido o espaço entre os itens */
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    /* Reduzido o padding vertical */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+/* Estilo para a nova linha de Total de Custos */
+.breakdown-total-costs {
+    /* border-top: 1px solid var(--text-secondary); -> Removido para evitar linha dupla */
+    border-bottom: none;
+    /* Remove a borda inferior para não duplicar com a do Lucro */
+}
+
+.breakdown-total-costs .breakdown-label,
+.breakdown-total-costs .value-real {
+    font-weight: 700;
+    /* Deixa o texto em negrito */
+}
+
+/* Destaca a linha de separação superior do Lucro Real */
+#breakdown-profit {
+    border-top: 1px solid var(--text-secondary);
+}
+
+/* Remove a borda inferior do item anterior ao Total de Custos para evitar linha dupla */
+#breakdown-product-cost {
+    border-bottom: none;
+}
+
+.breakdown-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.breakdown-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.breakdown-value .value-real {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.breakdown-value .value-percent {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Cores para cada item do breakdown */
+#breakdown-profit .breakdown-value .value-real {
+    color: var(--profit-high);
+}
+
+#breakdown-commission .breakdown-value {
+    color: var(--profit-medium);
+}
+
+#breakdown-marketing .breakdown-value {
+    color: #6f42c1;
+}
+
+/* Roxo */
+#breakdown-tax .breakdown-value {
+    color: #fd7e14;
+}
+
+/* Laranja */
+#breakdown-card-fee .breakdown-value {
+    color: #17a2b8;
+}
+
+/* Um tom de azul/ciano */
+#breakdown-fixed-cost .breakdown-value {
+    color: var(--text-secondary);
+}
+
+#breakdown-product-cost .breakdown-value .value-real {
+    color: var(--profit-low);
+}
+
+/* Estilo para o texto "(Lei do Salão Parceiro)" */
+.salao-parceiro-label {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 5px;
+}
+
+/* Novo container para o label principal e o subtítulo */
+.label-with-subtitle {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    /* Ajusta o espaçamento entre as linhas */
+}
+
+.label-with-subtitle .salao-parceiro-label {
+    margin-left: 0;
+    /* Reseta a margem para alinhar à esquerda */
+}
+ 
+/* Estilo para o texto de economia de imposto (inline, ao lado do valor) */
+.tax-savings-inline {
+    color: #fd7e14;
+    /* Mesma cor laranja do valor do imposto */
+    font-size: 0.85rem;
+    margin-right: 8px;
+}
+
+.breakdown-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    /* Era margin-top */
+    padding-bottom: 1rem;
+    /* Era padding-top */
+    border-bottom: 2px solid var(--primary);
+    /* Era border-top */
+}
+
+.summary-label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.summary-value {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Estilos para as Dicas de Análise */
+.tips-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 699px; /* Altura máxima antes de ativar a rolagem */
+    overflow-y: auto; /* Ativa a barra de rolagem vertical quando o conteúdo excede a altura máxima */
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.tip-item.success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--profit-high);
+}
+
+.tip-item.warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: var(--profit-medium);
+}
+
+.tip-item.critical {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--profit-low);
+}
+
+.tip-item.info {
+    background-color: rgba(0, 191, 166, 0.1);
+    border-color: var(--primary);
+}
+
+.tip-icon {
+    font-size: 1.5rem;
+}
+
+.tip-item.success .tip-icon {
+    color: var(--profit-high);
+}
+
+.tip-item.warning .tip-icon {
+    color: var(--profit-medium);
+}
+
+.tip-item.critical .tip-icon {
+    color: var(--profit-low);
+}
+
+.tip-item.info .tip-icon {
+    color: var(--primary);
+}
+
+.tip-text h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.tip-text p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* --- Estilos para o Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-light);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 470px;
+    border: 1px solid var(--border-color);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.open .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.modal-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.modal-btn-primary {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.modal-btn-primary:hover {
+    background-color: #00a793;
+}
+
+.modal-btn-secondary {
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.modal-btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+/* Estiliza os campos de formulário dentro do modal para serem consistentes */
+.modal-content input[type="text"],
+.modal-content select {
+    width: 100%;
+    /* Garante que os campos ocupem toda a largura */
+    padding: 10px;
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.modal-content select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+/* Deixa o texto da opção placeholder do modal com a cor secundária */
+.modal-content select:invalid {
+    color: var(--text-secondary);
+}
+
+/* NOVO CÓDIGO PARA CORRIGIR O POSICIONAMENTO DA CALCULADORA */
+
+/* Container Flex para o input e o botão lado a lado */
+.form-field.with-side-button {
+    display: flex !important;
+    /* Força o comportamento Flexbox */
+    flex-direction: row;
+    align-items: stretch;
+    /* Faz o botão ter a mesma altura do input */
+    gap: 10px;
+    /* Espaço entre eles */
+    width: 100%;
+}
+
+/* Estilo do Botão Lateral */
+.side-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    /* Padding lateral */
+    background-color: var(--primary);
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    /* Impede que o texto quebre */
+    flex-shrink: 0;
+    /* Impede que o botão seja esmagado */
+}
+
+.side-btn:hover {
+    background-color: #00a793;
+}
+
+.side-btn i {
+    font-size: 0.9rem;
+    margin-right: 5px;
+}
+
+/* Responsividade para a nova seção */
+@media (max-width: 1200px) {
+    .analysis-section {
+        grid-template-columns: 1fr;
+    }
+
+    .breakdown-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .dashboard-summary {
+        flex-direction: column;
+    }
+
+    th,
+    td {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+    td input[type="number"] {
+        width: 80px;
+    }
+}
+
+/* --- ESTILOS PARA A PÁGINA DA CALCULADORA DE CUSTO DE PRODUTO --- */
+
+.single-page-container {
+    display: block;
+    max-width: 1300px; /* Reduz a largura da página para telas grandes */
+    margin: 0 auto;
+}
+
+#cost-calculator-table {
+    text-align: center;
+}
+
+#cost-calculator-table th {
+    text-align: left;
+    white-space: nowrap; /* Impede a quebra de linha dos títulos */
+}
+
+#cost-calculator-table td {
+    vertical-align: middle;
+}
+
+/* Adiciona espaçamento ao cabeçalho "Uso" */
+#cost-calculator-table th:nth-child(6) {
+    padding-left: 39px;
+}
+
+/* Unifica o estilo dos campos da tabela de Custo de Produto com a de Custo Fixo */
+#cost-calculator-table input.text-input,
+#cost-calculator-table input.number-input,
+#cost-calculator-table .select-input {
+    background-color: var(--bg-dark);
+    border: 1px solid transparent;
+    font-size: 1rem;
+    font-weight: 400;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    color: var(--text-primary);
+}
+
+/* Centraliza o texto nos campos de preenchimento especificados */
+#cost-calculator-table .select-input[data-col="unit"],
+#cost-calculator-table input[data-col="price"],
+#cost-calculator-table input[data-col="volume"],
+#cost-calculator-table input[data-col="usage"] {
+    text-align: center;
+}
+
+/* Efeito de foco unificado */
+#cost-calculator-table input:focus,
+#cost-calculator-table .select-input:focus {
+    background-color: var(--bg-dark);
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* Novo: Reduz a largura dos campos de Volume e Uso para uma tabela mais compacta */
+#cost-calculator-table input[data-col="volume"],
+#cost-calculator-table input[data-col="usage"] {
+    width: 75px;
+}
+
+/* Reduz a largura do campo de Preço */
+#cost-calculator-table input[data-col="price"] {
+    width: 100px;
+}
+
+/* Reduz a largura da coluna de Unidade de Medida */
+#cost-calculator-table .select-input[data-col="unit"] {
+    width: 90px;
+}
+
+#cost-calculator-table .price-per-gram {
+    font-weight: 700;
+    color: var(--text-primary);
+    /* Alterado de verde para branco */
+}
+
+#cost-calculator-table .dose-value {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.calculator-footer .total-label {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+/* Estilo para o contador de despesas no rodapé */
+#expense-count-display,
+#variable-expense-count-display,
+#product-count-display {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    text-align: left;
+    flex-grow: 1;
+    /* Ocupa o espaço disponível à esquerda */
+}
+
+.calculator-footer .total-value {
+    text-align: left;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Ajusta as cores dos totais no rodapé da calculadora */
+#total-cost-value,
+#total-variable-cost-value {
+    color: var(--text-primary);
+    /* Cor branca para o valor em R$ */
+}
+
+#total-cost-percentage,
+#total-variable-cost-percentage {
+    color: var(--primary);
+    /* Cor verde para o valor em % */
+}
+
+
+/* Deixa o rodapé da tabela fixo na parte inferior durante a rolagem */
+#fixed-cost-table tfoot,
+#cost-calculator-table tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: var(--bg-light);
+}
+
+.calculator-footer td {
+    border-bottom: none; /* Remove a linha de separação do rodapé */
+}
+
+.calculator-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.actions-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-btn-primary,
+.action-btn-secondary,
+.action-btn-danger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.action-btn-primary {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.action-btn-primary:hover {
+    background-color: #00a793;
+}
+
+.action-btn-secondary {
+    background-color: var(--bg-lighter);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.action-btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+.action-btn-secondary.copied {
+    background-color: var(--profit-high);
+    color: #fff;
+    border-color: var(--profit-high);
+}
+
+.action-btn-danger {
+    background-color: transparent;
+    color: var(--profit-low);
+    border: 1px solid var(--profit-low);
+}
+
+.action-btn-danger:hover {
+    background-color: var(--profit-low);
+    color: #fff;
+}
+
+/* --- ESTILOS PARA A PÁGINA DA CALCULADORA DE CUSTO FIXO --- */
+
+#fixed-cost-table, #variable-cost-table {
+    text-align: center;
+}
+
+#fixed-cost-table th, #variable-cost-table th {
+    text-align: left;
+}
+
+#fixed-cost-table td, #variable-cost-table td {
+    vertical-align: middle;
+}
+
+#fixed-cost-table th:nth-child(2), #variable-cost-table th:nth-child(2),
+#fixed-cost-table td:nth-child(2), #variable-cost-table td:nth-child(2) {
+    width: 130px;
+}
+
+#fixed-cost-table input.text-input, #variable-cost-table input.text-input,
+#fixed-cost-table input.number-input, #variable-cost-table input.number-input {
+    padding: 8px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 5px;
+    font-weight: 400;
+    width: 120px;
+}
+
+#fixed-cost-table input.text-input, #variable-cost-table input.text-input {
+    width: 100%;
+}
+
+#fixed-cost-table input:focus, #variable-cost-table input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Alinha o valor total da calculadora de custo de produto à esquerda */
+#cost-calculator-table tfoot .total-value {
+    text-align: left;
+}
+
+/* Deixa o rodapé da tabela fixo na parte inferior durante a rolagem */
+#variable-cost-table tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: var(--bg-light);
+}
+
+@media (max-width: 1920px) {
+    .breakdown-chart-container {
+        width: 320px;
+        height: 320px;
+        flex-basis: 320px;
+    }
+
+    .analysis-section {
+        grid-template-columns: 3fr 2fr; /* Aumenta a largura do breakdown-card em 20% (de 50% para 60%) */
+    }
+
+    /* Para telas de até 1920px, mostra a versão curta e esconde a longa */
+    .admin-fee-label-full {
+        display: none;
+    }
+    .admin-fee-label-short {
+        display: block;
+    }
+
+    /* Move o texto de economia para cima do valor do imposto */
+    .tax-savings-inline {
+        display: block; /* Faz o span ocupar uma linha inteira */
+        margin-right: 0; /* Remove a margem lateral */
+        text-align: right; /* Alinha o texto de economia à direita */
+    }
+
+    /* Alinha o valor do imposto à direita, como os outros itens */
+    #breakdown-tax .value-real {
+        display: inline-block; /* Permite o alinhamento de texto */
+        text-align: right; /* Alinha o texto (valor e economia) à direita */
+    }
+
+    /* Ajustes na barra lateral para remover a barra de rolagem */
+    .sidebar {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .logo {
+        margin-bottom: 2rem;
+    }
+
+    .param-group {
+        margin-bottom: 1.5rem;
+        padding: 0.8rem;
+    }
+
+    .param-item {
+        margin-bottom: 0.6rem;
+    }
+
+    .form-field {
+        margin-bottom: 10px;
+    }
+
+    #service-manager input, #service-manager select, #add-service-btn {
+        padding: 8px 10px;
+    }
+
+    /* Aumenta a largura dos cards de métricas em 30% */
+    .metrics-cards {
+        max-width: 70%;
+        /* 50% * 1.3 = 65% */
+    }
+
+    #service-search-input {
+        width: 180px; /* Diminui a largura do campo de busca */
+    }
+
+    /* Evita a quebra de linha para os títulos das colunas "Lucro R$" e "Lucro %" */
+    .pricing-table-container th:nth-child(8) .header-content span,
+    .pricing-table-container th:nth-child(9) .header-content span {
+        white-space: nowrap;
+    }
+
+    /* Evita a quebra de linha para o conteúdo da coluna "Custo de Produto" */
+    .pricing-table-container tbody td:nth-child(3) {
+        white-space: nowrap;
+    }
+
+    /* Força a quebra de linha no título da coluna "Preço Atual" */
+    .pricing-table-container th:nth-child(2) .header-content span {
+        max-width: 60px; /* Define uma largura máxima para forçar a quebra */
+        word-wrap: break-word; /* Garante que a palavra quebre */
+        text-align: center; /* Centraliza o texto quebrado */
+    }
+
+    /* Diminui a largura da coluna de serviço */
+    .service-header-content {
+        width: 320px;
+    }
+
+    /* Diminui a largura dos campos de comissão e taxa admin no modo de edição */
+    .pricing-table-container .commission-input,
+    .pricing-table-container .admin-fee-input {
+        width: 60px;
+    }
+
+    /* Diminui a largura dos campos de preço e custo no modo de edição */
+    .pricing-table-container .current-price-input,
+    .pricing-table-container .product-cost-input {
+        width: 75px !important; /* Redução de 15% (de 85px para ~72px) */
+    }
+
+    /* Remove a barra de rolagem do conteúdo fixo da sidebar */
+    .sidebar-sticky-content {
+        overflow-y: hidden;
+        height: calc(100vh - 150px); /* Aumenta a altura para evitar corte do conteúdo */
+        top: 110px; /* Move o container para cima */
+    }
+}
+
+@media (max-width: 1440px) {
+    html {
+        /* Reduz o tamanho da fonte base em 20%, 
+           o que afetará todos os elementos que usam unidades 'rem' */
+        font-size: 70%;
+    }
+
+    /* Reduz o tamanho do gráfico do dashboard em 20% */
+    .breakdown-chart-container {
+        width: 256px; /* 320px - 20% */
+        height: 256px; /* 320px - 20% */
+        flex-basis: 256px; /* 320px - 20% */
+    }
+
+    /* Reduz o texto dos campos de preenchimento da barra lateral em 20% */
+    .sidebar input[type="text"],
+    .sidebar input[type="number"] {
+        font-size: 0.9rem;
+    }
+
+    /* Reduz o tamanho da fonte APENAS do campo de seleção (o texto visível "Selecione uma opção...") */
+    #service-manager select {
+        font-size: 0.9rem; 
+    }
+
+    /* Restaura o tamanho da fonte das opções do menu suspenso para o tamanho normal/legível */
+    #service-manager select option {
+        font-size: 1.3rem;
+    }
+
+    /* Reduz a largura dos campos de Parâmetros Globais em 20% */
+    .param-item input {
+        width: 44px; /* 80px - 20% */
+        height: 19px;
+    }
+
+    /* Alinha o valor de "Custos Totais" com os outros campos */
+    .param-total span {
+        width: 65px; /* Largura similar à dos outros campos com o símbolo de % */
+        text-align: right; /* Alinha o valor à direita */
+        padding-right: 17px; /* Adiciona um pequeno espaço para alinhar com os números */
+    }
+
+        .sidebar {
+        width: 234px !important; /* Reduz a largura da barra lateral */
+    }
+
+    /* Reduz o tamanho dos ícones de informação em 10% */
+    .info-icon {
+        width: 13px; /* 18px - 10% */
+        height: 13px; /* 18px - 10% */
+        font-size: 0.75rem;
+    }
+
+    /* Reduz a largura dos balões de texto dos ícones de informação */
+    .tooltip-text {
+        width: 160px; /* Valor original: 220px */
+    }
+
+    /* Reduz o tamanho do texto do botão "Adicionar Serviço" em 30% */
+    #add-service-btn {
+        font-size: 0.95rem; /* 1rem (padrão) - 30% = 0.7rem */
+    }
+
+    /* Reduz o tamanho dos campos de preenchimento do bloco "Adicionar Serviços" */
+    #service-manager input,
+    #service-manager select {
+        padding: 6px 8px; /* Reduz o preenchimento interno */
+        font-size: 0.85rem; /* Reduz o tamanho da fonte */
+    }
+
+    .param-checkbox-field input[type="checkbox"] {
+        width: 11px; /* 16px - 20% */
+        height: 11px; /* 16px - 20% */
+    }
+
+    #pricing-table-body td:last-child {
+        white-space: nowrap;
+        /* Força os botões de ação a ficarem na mesma linha */
+    }
+
+    /* Ajustes para compactar o conteúdo da sidebar e remover a rolagem */
+    .sidebar-sticky-content .param-group {
+        margin-bottom: 1rem; /* Reduz o espaço entre os grupos */
+        padding: 0.8rem; /* Reduz o padding interno dos grupos */
+    }
+
+    .sidebar-sticky-content .param-item {
+        margin-bottom: 0.5rem; /* Reduz o espaço entre os itens de parâmetro */
+    }
+
+    .sidebar-sticky-content .form-field {
+        margin-bottom: 0.6rem; /* Reduz o espaço entre os campos de adicionar serviço */
+    }
+
+    .sidebar-sticky-content h3 {
+        margin-bottom: 0.8rem; /* Reduz o espaço abaixo dos títulos */
+    }
+
+    /* Ajusta o conteúdo da barra lateral para ser fixo na tela */
+    .sidebar-sticky-content {
+        position: fixed;
+        top: 90px; /* Distância do topo (abaixo do logo) */
+        width: 195px; /* Largura da sidebar nesta resolução */
+        height: calc(100vh - 100px); /* Altura calculada para não sobrepor o rodapé */
+        overflow-y: hidden;
+        /* Remove a barra de rolagem */
+        transition: transform 0.3s ease, left 0.3s ease;
+        /* Adiciona a animação de deslize e aparição */
+    }
+
+    /* Remove o rodapé da sidebar */
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* --- Estilos da Sidebar Retrátil --- */
+    .sidebar-toggle-btn {
+        position: fixed;
+        top: 360px;
+        left: 219px;
+        /* Posiciona o botão para fora da sidebar */
+        width: 30px;
+        height: 30px;
+        background-color: var(--bg-lighter);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 110;
+        /* Acima da sidebar e do conteúdo */
+        transition: transform 0.3s ease, left 0.3s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background-color: var(--primary);
+    }
+
+    .sidebar-toggle-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    /* Estilos para a sidebar quando está recolhida */
+    .sidebar.collapsed {
+        width: 0 !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar-content-wrapper {
+        overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-content-wrapper {
+        opacity: 0;
+    }
+
+    .sidebar.collapsed .sidebar-sticky-content {
+        transform: translateX(-100%);
+        /* Move o conteúdo para a esquerda, para fora da tela */
+        opacity: 0; /* Esconde o conteúdo durante a transição */
+    }
+
+    .sidebar.collapsed .sidebar-toggle-btn {
+        right: auto;
+        left: -10px;
+        /* Ajusta a posição do botão quando recolhido */
+    }
+
+    .sidebar.collapsed .sidebar-toggle-btn i {
+        transform: rotate(180deg);
+        /* Gira o ícone de seta */
+    }
+
+    /* Reduz a largura dos mini cards de informação do topo em 20% */
+    .details-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); /* 150px - 20% */
+    }
+
+    /* Reduz a largura da coluna de serviço */
+    .service-header-content {
+        width: 250px; /* Reduzido de 320px */
+    }
+
+    /* Reduz a largura do campo de busca dentro da coluna de serviço */
+    #service-search-input {
+        width: 150px; /* Reduzido de 180px */
+    }
+
+    /* Ajusta o conteúdo principal quando a sidebar é recolhida */
+    .main-content {
+        transition: margin-left 0.3s ease;
+    }
+
+    .tips-content {
+        max-height: 496px; /* Reduz a altura máxima para garantir que o scroll apareça dentro do card */
+    }
+
+    /* Remove o quadrado branco no encontro das barras de rolagem da tabela */
+    ::-webkit-scrollbar-corner {
+        background: var(--bg-light);
+    }
+
+    /* Diminui a altura do cabeçalho da tabela para uma aparência mais fina */
+    .pricing-table-container th {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    /* Deixa o cabeçalho da tabela de custo de produto ainda mais fino */
+    #cost-calculator-table th {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    /* Ajusta o espaçamento do cabeçalho "Uso" */
+    #cost-calculator-table th:nth-child(6) {
+        padding-left: 24px;
+    }
+
+    /* Reduz o padding dos botões de aba no cabeçalho */
+    .header-tab-button {
+        padding: 10px 15px;
+    }
+
+    /* Ajusta o botão "Voltar ao Dashboard" nas páginas de calculadora */
+    .single-page-container #back-to-dashboard-btn {
+        justify-content: flex-start; /* Alinha o conteúdo à esquerda */
+        align-items: center; /* Alinha verticalmente o ícone e o texto */
+        padding-left: 15px;
+        padding-right: 15px;
+        white-space: nowrap; /* Impede a quebra de linha do texto */
+        width: auto; /* Permite que o botão se ajuste ao conteúdo */
+        margin-top: 7px; /* Move o botão para cima (valor menor = mais para cima) */
+    }
+
+    /* Ajuste fino para o alinhamento vertical do ícone dentro do botão */
+    #back-to-dashboard-btn i {
+        position: relative;
+        top: -1px; /* Move o ícone 1px para cima para alinhar visualmente com o texto */
+    }
+
+    /* Adiciona margem superior ao botão da página de custo de produto */
+    .single-page-container a.header-tab-button:not(#back-to-dashboard-btn) {
+        margin-top: 10px;
+    }
+
+    /* Reduz o tamanho e o padding dos botões de ação nas calculadoras */
+    .calculator-actions .action-btn-primary,
+    .calculator-actions .action-btn-secondary,
+    .calculator-actions .action-btn-danger {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* Reduz o tamanho dos campos de preenchimento na tabela da Calculadora de Custo de Produto */
+    #cost-calculator-table input.number-input,
+    #cost-calculator-table input.text-input,
+    #cost-calculator-table .select-input {
+        padding: 5px;
+        font-size: 0.9rem; /* Aumenta o tamanho da fonte */
+    }
+
+    #cost-calculator-table input.number-input {
+        width: 65px; /* 120px - 30% */
+    }
+    #cost-calculator-table input[data-col="volume"],
+    #cost-calculator-table input[data-col="usage"] {
+        width: 48px; /* 75px - 30% */
+    }
+
+    /* Reduz a largura máxima do container nas páginas de calculadora */
+    .single-page-container {
+        max-width: 900px !important; /* Aumenta a largura da página */
+    }
+
+    /* Ajusta a altura das linhas da tabela para corresponder ao cabeçalho */
+    #cost-calculator-table td {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    /* Reduz o padding horizontal das colunas da tabela de custo de produto */
+    #cost-calculator-table th,
+    #cost-calculator-table td {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Reduz o tamanho dos campos de preenchimento nas tabelas de custo fixo/variável */
+    #fixed-cost-table input.text-input,
+    #variable-cost-table input.text-input,
+    #fixed-cost-table input.number-input,
+    #variable-cost-table input.number-input {
+        padding: 4px 8px; /* Reduz o padding vertical, mantendo o horizontal */
+    }
+
+    /* Reduz o espaçamento vertical nas linhas das tabelas de custo fixo/variável */
+    #fixed-cost-table td,
+    #variable-cost-table td {
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
+
+    /* Restaura o espaçamento do cabeçalho apenas nas tabelas de custo fixo/variável */
+    #fixed-cost-table th, #variable-cost-table th {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    /* Esconde o texto de economia inline para mostrar apenas o de baixo */
+    .tax-savings-inline {
+        display: none;
+    }
+
+    /* Exibe e estiliza o texto de economia abaixo do gráfico */
+    .chart-savings-info {
+        display: block;
+        text-align: center;
+        color: #fd7e14; /* Laranja, mesma cor do imposto */
+        font-size: 1rem; /* Tamanho ajustado para a resolução */
+        font-weight: 600;
+        margin-top: 3rem; /* Espaço entre o gráfico e o texto */
+    }
+
+    /* Adiciona o texto " de imposto" ao final da frase de economia, apenas se houver conteúdo */
+    .chart-savings-info:not(:empty)::after {
+        content: " de imposto)";
+        margin-left: 4px; /* Pequeno espaço antes do novo texto */
+    }
+
+    /* Ajusta o container do gráfico para ser flex e centralizar */
+    .breakdown-chart-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Reduz a largura da coluna de Unidade de Medida */
+    #cost-calculator-table .select-input[data-col="unit"] {
+    width: 58px;
+    }
+
+}

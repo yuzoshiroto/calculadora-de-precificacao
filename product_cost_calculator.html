@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Custo de Produto</title>
+    <!-- Reutiliza os mesmos estilos e fontes da página principal -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container single-page-container">
+        <main class="main-content">
+            <header>
+                <div class="header-content-wrapper">
+                    <div class="header-text">
+                        <h1>Calculadora de Custo de Produto</h1>
+                        <p>Calcule o valor da dose de cada produto usado em seus serviços.</p>
+                    </div>
+                    <a href="index.html" class="header-tab-button">
+                        <i class="fas fa-tachometer-alt"></i> Voltar ao Dashboard
+                    </a>
+                </div>
+            </header>
+
+            <div class="calculator-header-wrapper">
+                <div class="subtitle-dropdown-wrapper">
+                    <h2 id="calculator-title" class="section-subtitle">Simulado</h2>
+                    <select id="service-selector" class="service-selector-hidden"></select>
+                </div>
+                <span id="service-status-label" class="service-status-label"></span>
+            </div>
+
+            <section class="pricing-table-container">
+                <div class="table-wrapper">
+                    <table id="cost-calculator-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Unid. de medida</th>
+                                <th>Preço (R$)</th>
+                                <th>Volume/Qtd.</th>
+                                <th>Preço por <span class="lowercase">g/ml</span></th>
+                                <th>Uso</th>
+                                <th>Valor da Dose (R$)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cost-calculator-body">
+                            <!-- Linhas de produtos serão inseridas aqui -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="calculator-footer">
+                                <td colspan="6" class="total-label">
+                                    <span id="product-count-display" style="float: left;">0 produtos</span>
+                                    <span style="float: right;">Custo Total:</span>
+                                </td>
+                                <td id="total-dose-cost" class="total-value">R$ 0,00</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <section class="calculator-actions">
+                <button type="button" id="add-product-row-btn" class="action-btn-primary">
+                    <i class="fas fa-plus"></i> Adicionar Produto
+                </button>
+                <div class="actions-right">
+                    <button type="button" id="copy-total-btn" class="action-btn-secondary" title="Copiar valor total para a área de transferência">
+                        <i class="fas fa-copy"></i> Copiar Total
+                    </button>
+                    <button type="button" id="clear-all-btn" class="action-btn-danger">
+                        <i class="fas fa-trash"></i> Limpar Tudo
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="product_cost_calculator.js"></script>
+</body>
+</html>

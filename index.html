@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Precificação | Duo Academy</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Adiciona a biblioteca de ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Painel Lateral de Parâmetros -->
+        <aside class="sidebar">
+            <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Recolher/Expandir">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="sidebar-content-wrapper">
+                <div class="logo">
+                    <img src="https://i.imgur.com/r6b3p1B.png" alt="Logo DUO">
+                </div>
+                <div class="sidebar-sticky-content">
+                    <form id="params-form">
+                        <h3>
+                            <span><i class="icon">📊</i>Parâmetros Globais</span>
+                            <div class="info-tooltip">
+                                <i class="info-icon">i</i>
+                                <span class="tooltip-text">Defina os parâmetros base usados para o cálculo de todos os serviços.</span>
+                            </div>
+                        </h3>
+                        <div class="param-group" id="financial-params">
+                            <!-- Parâmetros Financeiros serão inseridos aqui pelo JS -->
+                        </div>
+                        
+                        <h3>
+                            <span><i class="icon">✂️</i>Adicionar Serviços</span>
+                            <div class="info-tooltip">
+                                <i class="info-icon">i</i>
+                                <span class="tooltip-text">Adicione os serviços que deseja analisar a precificação.</span>
+                            </div>
+                        </h3>
+                        <div class="param-group" id="service-manager">
+                             <div class="form-field">
+                                <label for="new-service-name">Nome do serviço</label>
+                                <input type="text" id="new-service-name" placeholder="Ex: Corte Feminino">
+                             </div>
+                             <div class="form-field">
+                                <label for="new-service-price">Preço atual (R$)</label>
+                                <input type="text" id="new-service-price" class="formatted-number-input" placeholder="Ex: 55,00" data-raw-value="0">
+                             </div>
+                             <div class="form-field">
+                                <label for="new-service-admin-fee">Taxa administrativa (%)</label>
+                                <input type="number" id="new-service-admin-fee" placeholder="Ex: 10" step="0.01" min="0">
+                             </div>
+                             <div class="form-field">
+                                 <label for="new-service-product-origin">Custo de produto (R$)</label>
+                                <select id="new-service-product-origin">
+                                    <option value="" selected disabled>Selecione uma opção...</option>
+                                    <option value="salon">Produto do Salão</option>
+                                    <option value="professional">Produto do Profissional</option>
+                                    <option value="client">Produto do Cliente</option>
+                                </select>
+                             </div>
+                             <div class="form-field" id="new-service-cost-container">
+                                <input type="text" id="new-service-cost" class="formatted-number-input" placeholder="Ex: 2,00" data-raw-value="0">
+                             </div>
+                             <div class="form-field">
+                                <label for="new-service-commission">Comissão (%)</label>
+                                <input type="number" id="new-service-commission" placeholder="Ex: 50" step="0.01" min="0">
+                             </div>
+                             <button type="button" id="add-service-btn">Adicionar Serviço</button>
+                        </div>
+                    </form>
+                </div>
+                 <div class="sidebar-footer">
+                    <p>Dados salvos localmente.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <header>
+                <div class="header-content-wrapper">
+                    <div class="header-text">
+                        <h1>Dashboard de Precificação</h1>
+                        <p>por Duo Academy</p>
+                    </div>
+                    <div class="header-buttons-group">
+                        <a href="fixed_cost_calculator.html" class="header-tab-button">
+                            <i class="fas fa-building"></i> Calculadora de Custo Fixo/Variável
+                        </a>
+                        <a href="product_cost_calculator.html" class="header-tab-button">
+                            <i class="fas fa-calculator"></i> Calculadora de Custo de Produto
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Seção de Resumo e Gráfico -->
+            <section class="dashboard-summary" id="dashboard-summary">
+                <div class="service-details">
+                    <h2 id="selected-service-name">Selecione um serviço na tabela</h2>
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <h4>Preço Atual</h4>
+                            <span id="details-price">R$ 0,00</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Custo do Produto</h4>
+                            <span id="details-product-cost">R$ 0,00</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Comissão %</h4>
+                            <span id="details-commission-percent">0,00%</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4 class="admin-fee-label-full">Taxa Administrativa %</h4>
+                            <h4 class="admin-fee-label-short">Taxa Admin. %</h4>
+                            <span id="details-admin-fee-percent">0,00%</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Valor Comissão</h4>
+                            <span id="details-commission-value">R$ 0,00</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Preço Sugerido</h4>
+                            <span id="details-suggested-price">R$ 0,00</span>
+                        </div>
+                         <div class="detail-card">
+                            <h4>Lucro R$</h4>
+                            <span id="details-profit-value">R$ 0,00</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Lucro %</h4>
+                            <span id="details-profit-percent">0,00%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Novas Seções: Detalhamento e Dicas (Inspirado na Calculadora da Dani) -->
+            <section class="analysis-section" id="analysis-section" style="display: none;">
+                <!-- Detalhamento do Preço -->
+                <div class="breakdown-card">
+                    <div class="breakdown-header">
+                        <h3 id="breakdown-title"><i class="icon">🧩</i> Detalhamento do Preço</h3>
+                        <p class="breakdown-subtitle">Entenda para onde vai cada centavo do preço do serviço.</p>
+                    </div>
+                    <div class="breakdown-body">
+                        <div class="breakdown-details">
+                            <div class="breakdown-summary">
+                                <div class="summary-label">Total (Preço Atual)</div>
+                                <div class="summary-value" id="breakdown-total">R$ 0,00</div>
+                            </div>
+                            <div class="breakdown-container">
+                                <div class="breakdown-item" id="breakdown-commission">
+                                    <div class="breakdown-label"><i class="icon">🤝</i>Comissão</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-marketing">
+                                    <div class="breakdown-label"><i class="icon">📢</i>Marketing</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-tax">
+                                    <div class="breakdown-label"><i class="icon">📜</i>Impostos</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-card-fee">
+                                    <div class="breakdown-label"><i class="icon">💳</i>Taxa de Cartão</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-fixed-cost">
+                                    <div class="breakdown-label"><i class="icon">🏢</i>Custos Fixos</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-product-cost">
+                                    <div class="breakdown-label"><i class="icon">🧴</i>Custo do Produto</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item breakdown-total-costs" id="breakdown-total-costs">
+                                    <div class="breakdown-label">Total de Custos</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                                <div class="breakdown-item" id="breakdown-profit">
+                                    <div class="breakdown-label"><i class="icon">💵</i>Lucro Real</div>
+                                    <div class="breakdown-value"><span class="value-real">R$ 0,00</span><span class="value-percent">(0,00%)</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="breakdown-chart-container">
+                            <canvas id="breakdown-chart"></canvas>
+                            <div id="breakdown-chart-center-text" class="chart-center-text">
+                                <!-- O valor será inserido aqui pelo JS -->
+                            </div>
+                            <!-- Novo container para a informação de economia -->
+                            <div id="chart-savings-info" class="chart-savings-info">
+                                <!-- O texto de economia será inserido aqui pelo JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dicas de Análise -->
+                <div class="analysis-tips">
+                    <div class="analysis-tips-header">
+                        <h3><i class="icon">💡</i> Análise do serviço</h3>
+                        <p class="analysis-subtitle">Dicas para otimizar sua precificação.</p>
+                    </div>
+                    <div id="tips-content" class="tips-content">
+                        <!-- Dicas serão inseridas aqui pelo JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabela de Precificação -->
+            <section class="pricing-table-container">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="service-header">
+                                    <div class="service-header-content">
+                                        <div class="header-content">
+                                            <span>Serviço</span>
+                                        </div>
+                                        <div class="search-wrapper">
+                                            <input type="text" id="service-search-input" placeholder="Pesquisar serviço...">
+                                            <button type="button" id="clear-search-btn" class="clear-search-btn" title="Limpar busca">×</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="editable-header">
+                                    <div class="header-content">
+                                        <span>Preço Atual</span>
+                                        <div class="sort-icons" data-sort-by="currentPrice"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Custo de Produto</span>
+                                        <div class="sort-icons" data-sort-by="productCost"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Comissão</span>
+                                        <div class="sort-icons" data-sort-by="commission"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Taxa Admin.</span>
+                                        <div class="sort-icons" data-sort-by="adminFee"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Valor Comissão</span>
+                                        <div class="sort-icons" data-sort-by="commissionValue"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Preço Sugerido</span>
+                                        <div class="sort-icons" data-sort-by="suggestedPrice"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Lucro R$</span>
+                                        <div class="sort-icons" data-sort-by="financialProfit"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>Lucro %</span>
+                                        <div class="sort-icons" data-sort-by="profitPercentage"><span class="sort-icon"></span></div>
+                                    </div>
+                                </th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricing-table-body">
+                            <!-- Linhas da tabela serão inseridas aqui pelo JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cards de Métricas Gerais (Agora abaixo da tabela) -->
+            <section class="metrics-cards">
+                <div class="metric-card multi-info-card">
+                    <h3>Resumo Geral</h3>
+                    <div class="multi-info-content">
+                        <div class="info-line"><span>Total de Serviços</span><strong id="total-services-metric">0</strong></div>
+                        <div class="info-line"><span>Custo Médio</span><strong id="avg-product-cost-metric">R$ 0,00</strong></div>
+                        <div class="info-line"><span>Comissão Média</span><strong id="avg-commission-metric">0,00%</strong></div>
+                        <div class="info-line"><span>Lucro Médio</span><strong id="avg-profit-metric">0,00%</strong></div>
+                    </div>
+                </div>
+                <div class="metric-card salao-parceiro-card">
+                    <h3><i class="icon">🤝</i> Lei do Salão Parceiro</h3>
+                    <p id="salao-parceiro-metric"></p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Edição de Custo de Produto -->
+    <div id="product-cost-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3><i class="icon">🧴</i> Configurar Custo de Produto</h3>
+            <p class="modal-subtitle">Ajuste a origem e o valor do produto para o serviço selecionado.</p>
+            
+            <div class="form-field">
+                <label for="modal-product-origin">Custo de produto (R$)</label>
+                <select id="modal-product-origin">
+                    <option value="" selected disabled>Selecione uma opção...</option>
+                    <option value="salon">Produto do Salão</option>
+                    <option value="professional">Produto do Profissional</option>
+                    <option value="client">Produto do Cliente</option>
+                </select>
+            </div>
+            <div class="form-field with-side-button" id="modal-cost-container">
+                <input type="text" id="modal-product-cost" class="formatted-number-input" placeholder="Ex: 2,00" data-raw-value="0">
+                <a href="#" id="modal-calculator-btn" class="side-btn">
+                    <i class="fas fa-calculator"></i> Calculadora
+                </a>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="modal-cancel-btn" class="modal-btn-secondary">Cancelar</button>
+                <button type="button" id="modal-save-btn" class="modal-btn-primary">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biblioteca de Gráficos Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Nosso script principal -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Custo Fixo/Variável | Salão DUO</title>
+    <!-- Reutiliza os mesmos estilos e fontes da página principal -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container single-page-container" style="max-width: 1200px;">
+        <main class="main-content">
+            <header>
+                <div class="header-content-wrapper">
+                    <div class="header-text">
+                        <h1>Calculadora de Custo Fixo/Variável</h1>
+                        <p>Calcule os custos fixos e variáveis e o peso que cada despesa tem sobre o<br>faturamento do salão.</p>
+                    </div>
+                    <a href="index.html" class="header-tab-button" id="back-to-dashboard-btn" style="gap: 10px;">
+                        <i class="fas fa-tachometer-alt"></i><span>Voltar ao Dashboard</span>
+                    </a>
+                </div>
+            </header>
+
+            <section class="dashboard-summary" id="main-summary-section" style="display: flex; gap: 2rem; align-items: flex-start; background: none; box-shadow: none; padding: 0;">
+                <!-- Card de Faturamento -->
+                <div class="summary-card-wrapper" style="flex: 0.6;">
+                    <h4 class="summary-card-title">Faturamento do Salão <br>(sem revenda de produtos)</h4>
+                    <div class="detail-card">
+                        <div class="input-with-prefix">
+                            <span style="font-size: 1.5rem; color: var(--primary);">R$</span>
+                            <input type="text" id="revenue-input" class="formatted-number-input" placeholder="Ex: 32.000,00"
+                                data-raw-value="32000"                                 
+                                style="font-size: 1.6rem; font-weight: 600; color: var(--primary); width: 100%; background: transparent; border: none; padding-left: 5px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grupo de Cards: Despesas e Resultado -->
+                <div class="summary-card-group">
+                    <!-- Card de Despesas Totais -->
+                    <div class="summary-card-wrapper">
+                        <h4 class="summary-card-title" style="white-space: nowrap;">Despesas (Custo Fixo + Variável)</h4>
+                        <div class="detail-card">
+                            <div class="value-group">
+                                <span id="total-expenses-value" style="font-size: 1.5rem; font-weight: 600; color: var(--text-primary);">R$ 0,00</span>
+                                <span id="total-expenses-percentage" class="summary-card-percentage" style="color: var(--primary);">0,00%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Resultado Final -->
+                    <div class="summary-card-wrapper">
+                        <h4 class="summary-card-title">Resultado Final</h4>
+                        <div class="detail-card">
+                            <span id="final-result-value" style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <h2 class="section-subtitle" style="margin-top: 3rem; margin-bottom: 1rem;">Custos Fixos</h2>
+            <section class="pricing-table-container">
+                <div class="table-wrapper">
+                    <table id="fixed-cost-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Despesa</th>
+                                <th>Valor (R$)</th>
+                                <th>Participação (%)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fixed-cost-body">
+                            <!-- Linhas de despesas serão inseridas aqui -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="calculator-footer">
+                                <td class="total-label">
+                                    <span id="expense-count-display" style="float: left;">0 despesas</span>
+                                    <span style="float: right;">Total de Custo Fixo:</span>
+                                </td>
+                                <td id="total-cost-value" class="total-value">R$ 0,00</td>
+                                <td id="total-cost-percentage" class="total-value">0,00%</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <section class="calculator-actions">
+                <button type="button" id="add-expense-row-btn" class="action-btn-primary">
+                    <i class="fas fa-plus"></i> Adicionar Despesa
+                </button>
+                <div class="actions-right">
+                    <button type="button" id="copy-total-btn" class="action-btn-secondary"
+                        title="Copiar valor total percentual para a área de transferência">
+                        <i class="fas fa-copy"></i> Copiar Total %
+                    </button>
+                    <button type="button" id="reset-to-default-btn" class="action-btn-secondary">
+                        <i class="fas fa-undo"></i> Despesas Padrão
+                    </button>
+                    <button type="button" id="clear-all-btn" class="action-btn-danger">
+                        <i class="fas fa-trash"></i> Limpar Tabela
+                    </button>
+                </div>
+            </section>
+
+            <!-- Seção de Custos Variáveis -->
+            <h2 class="section-subtitle" style="margin-top: 3rem; margin-bottom: 1rem;">Custos Variáveis</h2>
+            <section class="pricing-table-container">
+                <div class="table-wrapper">
+                    <table id="variable-cost-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Despesa</th>
+                                <th>Valor (R$)</th>
+                                <th>Participação (%)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variable-cost-body">
+                            <!-- Linhas de despesas variáveis serão inseridas aqui -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="calculator-footer">
+                                <td class="total-label">
+                                    <span id="variable-expense-count-display" style="float: left;">0 despesas</span>
+                                    <span style="float: right;">Total de Custo Variável:</span>
+                                </td>
+                                <td id="total-variable-cost-value" class="total-value">R$ 0,00</td>
+                                <td id="total-variable-cost-percentage" class="total-value">0,00%</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <section class="calculator-actions">
+                <button type="button" id="add-variable-expense-row-btn" class="action-btn-primary">
+                    <i class="fas fa-plus"></i> Adicionar Despesa
+                </button>
+                <div class="actions-right">
+                    <button type="button" id="reset-variable-to-default-btn" class="action-btn-secondary">
+                        <i class="fas fa-undo"></i> Despesas Padrão
+                    </button>
+                    <button type="button" id="clear-variable-all-btn" class="action-btn-danger">
+                        <i class="fas fa-trash"></i> Limpar Tabela
+                    </button>
+                </div>
+            </section>
+            <!-- Fim da Seção de Custos Variáveis -->
+
+        </main>
+    </div>
+
+    <script src="fixed_cost_calculator.js"></script>
+</body>
+
+</html>

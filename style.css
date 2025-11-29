@@ -2392,3 +2392,9 @@ tbody tr.drag-over {
     }
 
 }
+
+@media (max-width: 1366px) {
+    .sidebar-sticky-content {
+        overflow-y: auto;
+    }
+}

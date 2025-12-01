@@ -10,41 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fixedCost: 0.30, // C14
             isSalaoParceiro: false // NOVO: Parâmetro global para Lei do Salão Parceiro
         },
-        services: [
-            { name: "COL. SO PURE MÉDIA *31g a 40g", currentPrice: 130.00, commission: 0.25, productCost: 40.54, adminFee: 0, productOrigin: 'salon' },
-            { name: "TONALIZANTE MÉDIO *21g a 40g", currentPrice: 120.00, commission: 0.25, productCost: 38.23, adminFee: 0, productOrigin: 'salon' },
-            { name: "TONALIZANTE LONGO *41g a 60g", currentPrice: 170.00, commission: 0.25, productCost: 56.63, adminFee: 0, productOrigin: 'salon' },
-            { name: "PENTEADO SEMI PRESO", currentPrice: 70.00, commission: 0.40, productCost: 6.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "ESCOVA MODELADA DUO", currentPrice: 40.00, commission: 0.40, productCost: 4.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "PENTEADO PRESO", currentPrice: 900.00, commission: 0.40, productCost: 7.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "CORTE FRANJA", currentPrice: 20.00, commission: 0.40, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "ESCOVA DUO", currentPrice: 35.00, commission: 0.40, productCost: 3.88, adminFee: 0, productOrigin: 'salon' },
-            { name: "PENTEADO FESTA", currentPrice: 110.00, commission: 0.40, productCost: 8.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "COLORAÇÃO MÉDIA *31g a 40g", currentPrice: 115.00, commission: 0.25, productCost: 32.63, adminFee: 0, productOrigin: 'salon' },
-            { name: "BABY LISS", currentPrice: 35.00, commission: 0.30, productCost: 6.80, adminFee: 0, productOrigin: 'salon' },
-            { name: "BARBA", currentPrice: 25.00, commission: 0.40, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "COLORAÇÃO CURTA até 30g", currentPrice: 80.00, commission: 0.25, productCost: 24.83, adminFee: 0, productOrigin: 'salon' },
-            { name: "CORTE INFANTIL", currentPrice: 30.00, commission: 0.40, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "TONALIZANTE CURTO *até 20g", currentPrice: 90.00, commission: 0.25, productCost: 19.83, adminFee: 0, productOrigin: 'salon' },
-            { name: "TRAT. BOND FUSION", currentPrice: 90.00, commission: 0.25, productCost: 15.34, adminFee: 0, productOrigin: 'salon' },
-            { name: "CORTE MASCULINO", currentPrice: 30.00, commission: 0.40, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "CORTE MASCULINO MAQUINA", currentPrice: 25.00, commission: 0.40, productCost: 1.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "BARBA MAQUINA", currentPrice: 15.00, commission: 0.40, productCost: 1.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "CORTE FEMININO", currentPrice: 55.00, commission: 0.50, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "COL. SO PURE LONGA *41g a 60g", currentPrice: 190.00, commission: 0.25, productCost: 59.74, adminFee: 0, productOrigin: 'salon' },
-            { name: "ESCOVA COMPOSIÇÃO", currentPrice: 20.00, commission: 0.30, productCost: 3.88, adminFee: 0, productOrigin: 'salon' },
-            { name: "TONALIZANTE COMP. MECHA 20g", currentPrice: 50.00, commission: 0.20, productCost: 12.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "CAMUFLAGEM BARBA", currentPrice: 35.00, commission: 0.25, productCost: 5.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "MECHA CURTA *até 50g", currentPrice: 150.00, commission: 0.25, productCost: 22.93, adminFee: 0, productOrigin: 'salon' },
-            { name: "MECHA LONGA *71g a 90g", currentPrice: 245.00, commission: 0.25, productCost: 44.43, adminFee: 0, productOrigin: 'salon' },
-            { name: "CAMUFLAGEM CABELO", currentPrice: 35.00, commission: 0.25, productCost: 7.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "HIDRATAÇÃOMASCULINA", currentPrice: 15.00, commission: 0.25, productCost: 2.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "MECHA MÉDIA *51g a 70g", currentPrice: 215.00, commission: 0.25, productCost: 31.53, adminFee: 0, productOrigin: 'salon' },
-            { name: "COLORAÇÃO LONGA *41g a 60g", currentPrice: 145.00, commission: 0.25, productCost: 48.00, adminFee: 0, productOrigin: 'salon' },
-            { name: "LAVADO SILVER", currentPrice: 20.00, commission: 0.25, productCost: 2.50, adminFee: 0, productOrigin: 'salon' },
-            { name: "TRAT. VITAL NUTRITION", currentPrice: 50.00, commission: 0.25, productCost: 5.70, adminFee: 0, productOrigin: 'salon' },
-            { name: "TRAT. K3", currentPrice: 70.00, commission: 0.25, productCost: 13.17, adminFee: 0, productOrigin: 'salon' },
-        ]
+        services: []
     };
 
     const DEFAULT_SORT = {

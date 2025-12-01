@@ -125,6 +125,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Listeners para formatação de número (foco e perda de foco)
+        const formattedInput = row.querySelector('.formatted-number-input');
+        formattedInput.addEventListener('focus', (e) => {
+            const rawValue = e.target.dataset.rawValue || '0';
+            // Ao focar, mostra o valor com vírgula para edição
+            e.target.value = rawValue.replace('.', ',');
+            e.target.select();
+        });
+
+        formattedInput.addEventListener('blur', (e) => {
+            if (e.target.value.trim() === '' || parseFormattedNumber(e.target.value) === 0) {
+                e.target.dataset.rawValue = '0.00';
+                e.target.value = ''; // Deixa vazio para o placeholder aparecer
+            } else {
+                const rawValue = parseFormattedNumber(e.target.value);
+                e.target.dataset.rawValue = rawValue.toFixed(2);
+                e.target.value = formatNumberForDisplay(rawValue);
+            }
+            calculateTotal(); // Recalcula após formatar
+        });
+
         // Listener para o seletor de unidade
         const unitSelector = row.querySelector('[data-col="unit"]');
         unitSelector.addEventListener('change', (e) => {

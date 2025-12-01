@@ -75,14 +75,23 @@ body {
 }
 
 .logo {
+    position: fixed;
+    width: 325px; /* Mesma largura da sidebar */
+    top: 0;
+    left: 0;
+    background-color: var(--bg-light); /* Garante que o fundo não seja transparente */
+    z-index: 101; /* Garante que o logo fique sobre o conteúdo que rola */
+    padding: 2rem 1.5rem; /* Mantém o mesmo espaçamento da sidebar */
     text-align: center;
     margin-bottom: 2.5rem;
+    transition: width 0.3s ease, transform 0.3s ease, opacity 0.3s ease; /* Animação de expandir/recolher */
 }
 
 .logo img {
     max-width: 100px;
 }
 
+/* Ajuste para o conteúdo fixo começar abaixo do logo fixo */
 .sidebar-sticky-content {
     position: fixed; /* Fixa o container na tela */
     top: 144px; /* Distância do topo (abaixo do logo) */
@@ -1593,6 +1602,12 @@ tbody tr.drag-over {
     border-color: var(--primary);
 }
 
+/* Reduz a largura do campo de valor no modal de custo de produto */
+#modal-product-cost {
+    flex-grow: 0; /* Impede que o campo cresça para preencher o espaço */
+    width: 80px; /* Define uma largura fixa menor */
+}
+
 .modal-content select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -2072,7 +2087,7 @@ tbody tr.drag-over {
 
     /* Restaura o tamanho da fonte das opções do menu suspenso para o tamanho normal/legível */
     #service-manager select option {
-        font-size: 1.3rem;
+        font-size: 0.85rem; /* Igual ao restante dos campos de "Adicionar Serviços" */
     }
 
     /* Reduz a largura dos campos de Parâmetros Globais em 20% */
@@ -2086,6 +2101,13 @@ tbody tr.drag-over {
         width: 65px; /* Largura similar à dos outros campos com o símbolo de % */
         text-align: right; /* Alinha o valor à direita */
         padding-right: 17px; /* Adiciona um pequeno espaço para alinhar com os números */
+    }
+
+    /* Reduz a largura do logo para acompanhar a sidebar */
+    .logo {
+        width: 234px;
+        padding-top: 1.5rem; /* Reduz o espaçamento superior */
+        padding-bottom: 1.5rem; /* Reduz o espaçamento inferior */
     }
 
         .sidebar {
@@ -2205,6 +2227,13 @@ tbody tr.drag-over {
         opacity: 0;
     }
 
+    /* Ajuste para o logo acompanhar o recolhimento da sidebar */
+    .sidebar.collapsed .logo {
+        transform: translateX(-100%);
+        opacity: 0;
+        width: 234px !important; /* Mantém a largura para a animação funcionar */
+    }
+
     .sidebar.collapsed .sidebar-sticky-content {
         transform: translateX(-100%);
         /* Move o conteúdo para a esquerda, para fora da tela */
@@ -2220,6 +2249,26 @@ tbody tr.drag-over {
     .sidebar.collapsed .sidebar-toggle-btn i {
         transform: rotate(180deg);
         /* Gira o ícone de seta */
+    }
+
+    /* Reduz o tamanho dos campos de edição na tabela do dashboard */
+    .pricing-table-container .current-price-input,
+    .pricing-table-container .product-cost-input {
+        width: 60px !important; /* Reduz a largura dos campos de preço e custo */
+        padding: 4px 6px; /* Reduz o padding interno */
+        font-size: 0.9rem; /* Reduz o tamanho da fonte */
+    }
+
+    .pricing-table-container .commission-input,
+    .pricing-table-container .admin-fee-input {
+        width: 45px; /* Reduz a largura dos campos de comissão e taxa */
+        font-size: 0.9rem; /* Reduz o tamanho da fonte */
+    }
+
+    /* Aproxima os ícones de ação na tabela do dashboard */
+    .pricing-table-container .edit-service-btn,
+    .pricing-table-container .save-service-btn {
+        margin-right: 5px; /* Reduz o espaço entre os ícones */
     }
 
     /* Reduz a largura dos mini cards de informação do topo em 20% */
@@ -2319,9 +2368,9 @@ tbody tr.drag-over {
         width: 48px; /* 75px - 30% */
     }
 
-    /* Reduz a largura máxima do container nas páginas de calculadora */
+    /* Reduz a largura máxima do container nas páginas de calculadora para aumentar as margens */
     .single-page-container {
-        max-width: 900px !important; /* Aumenta a largura da página */
+        max-width: 850px !important; /* Reduz a largura para aumentar as margens */
     }
 
     /* Ajusta a altura das linhas da tabela para corresponder ao cabeçalho */
@@ -2391,10 +2440,30 @@ tbody tr.drag-over {
     width: 58px;
     }
 
+    /* Reduz a largura do modal "Configurar Custo de Produto" */
+    .modal-content {
+        max-width: 380px; /* Valor original: 470px */
+    }
+
+    /* Aumenta a fonte do botão "Calculadora" no modal para igualar aos outros */
+    #modal-calculator-btn {
+        font-size: 1.1rem; /* Padrão dos outros botões do modal */
+    }
+
+    /* Reduz a largura dos cards de métricas abaixo da tabela */
+    .metrics-cards {
+        max-width: 68%; /* 70% (valor herdado) - 25% */
+    }
+
 }
 
 @media (max-width: 1366px) {
     .sidebar-sticky-content {
         overflow-y: auto;
+    }
+
+        /* --- Estilos da Sidebar Retrátil --- */
+    .sidebar-toggle-btn {
+        top: 300px;
     }
 }

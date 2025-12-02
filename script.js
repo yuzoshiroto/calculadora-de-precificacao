@@ -926,7 +926,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const commission = parseFloat(commissionInput.value) / 100;
         const adminFee = parseFloat(adminFeeInput.value) / 100 || 0;
         const productOrigin = productOriginInput.value;
-        const cost = productOrigin === 'professional' ? 0 : parseFormattedNumber(costInput.value);
+        // O valor do custo deve ser sempre salvo, independentemente da origem.
+        // A lógica de cálculo (calculateServiceMetrics) já trata o que fazer com esse valor.
+        const cost = parseFormattedNumber(costInput.value);
 
         if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission) && !isNaN(cost) && !isNaN(adminFee)) {
             const newService = { name, currentPrice: inputValue, commission, productCost: cost, adminFee, productOrigin };
@@ -1097,6 +1099,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calcula a posição para centralizar o balão acima do ícone
         let top = rect.top - tooltipRect.height - 10; // 10px de espaço acima
         let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+        // Exceção para os tooltips da sidebar, movendo-os para a esquerda
+        if (tooltip.id === 'add-service-tooltip' || tooltip.id === 'global-params-tooltip') {
+            // Desloca o balão 50 pixels para a esquerda a partir da posição centralizada
+            left -= 60;
+        }
 
         // Define a posição final do balão
         tooltipText.style.top = `${top}px`;

@@ -100,6 +100,7 @@ body {
     overflow-y: auto; /* Adiciona rolagem se o conteúdo for maior que a altura */
     overflow-x: hidden; /* Remove a rolagem horizontal */
     padding-bottom: 1rem;
+    z-index: 105; /* Garante que o conteúdo da sidebar fique acima do conteúdo principal, mas abaixo do botão de toggle */
 }
 
 .sidebar h3 {
@@ -155,9 +156,9 @@ body {
     padding: 12px;
     border-radius: 6px;
     position: fixed;
-    /* Chave da solução: posiciona em relação à janela */
-    z-index: 999;
-    /* Garante que o balão fique sobre todos os outros elementos */
+    /* Chave da solução: posiciona em relação à janela e garante que fique acima de tudo */
+    z-index: 9999;
+    /* Garante que o balão fique sobre TODOS os outros elementos da página */
     /* As propriedades top, left e margin são agora controladas pelo JavaScript */
     opacity: 0;
     transition: opacity 0.3s;
@@ -2028,6 +2029,11 @@ tbody tr.drag-over {
         white-space: nowrap;
     }
 
+    /* Garante que os botões de ação na tabela do dashboard fiquem na mesma linha */
+    .pricing-table-container tbody td:last-child {
+        white-space: nowrap;
+    }
+
     /* Força a quebra de linha no título da coluna "Preço Atual" */
     .pricing-table-container th:nth-child(2) .header-content span {
         max-width: 60px; /* Define uma largura máxima para forçar a quebra */
@@ -2046,6 +2052,13 @@ tbody tr.drag-over {
         width: 60px;
     }
 
+    /* Aproxima os ícones de ação na tabela do dashboard */
+    .pricing-table-container .edit-service-btn,
+    .pricing-table-container .save-service-btn {
+        margin-right: 5px;
+        /* Reduz o espaço entre os ícones */
+    }
+
     /* Diminui a largura dos campos de preço e custo no modo de edição */
     .pricing-table-container .current-price-input,
     .pricing-table-container .product-cost-input {
@@ -2055,8 +2068,13 @@ tbody tr.drag-over {
     /* Remove a barra de rolagem do conteúdo fixo da sidebar */
     .sidebar-sticky-content {
         overflow-y: hidden;
-        height: calc(100vh - 150px); /* Aumenta a altura para evitar corte do conteúdo */
+        height: calc(100vh - 130px); /* Aumenta a altura para evitar corte do conteúdo */
         top: 110px; /* Move o container para cima */
+    }
+
+    /* Aplica a escala no formulário da barra lateral */
+    #params-form {
+        transform-origin: top;
     }
 }
 
@@ -2199,7 +2217,7 @@ tbody tr.drag-over {
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 110;
+        z-index: 999;
         /* Acima da sidebar e do conteúdo */
         transition: transform 0.3s ease, left 0.3s ease;
     }
@@ -2263,12 +2281,6 @@ tbody tr.drag-over {
     .pricing-table-container .admin-fee-input {
         width: 45px; /* Reduz a largura dos campos de comissão e taxa */
         font-size: 0.9rem; /* Reduz o tamanho da fonte */
-    }
-
-    /* Aproxima os ícones de ação na tabela do dashboard */
-    .pricing-table-container .edit-service-btn,
-    .pricing-table-container .save-service-btn {
-        margin-right: 5px; /* Reduz o espaço entre os ícones */
     }
 
     /* Reduz a largura dos mini cards de informação do topo em 20% */

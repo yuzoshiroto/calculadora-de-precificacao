@@ -37,14 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let commissionBase = service.currentPrice; // Base para cálculo da comissão
         let profitBase = service.currentPrice; // Base para cálculo do lucro
 
-        if (productOrigin === 'professional') {
+        if (productOrigin === 'salon') {
+            // Para "Produto do Salão", o custo do produto abate a base da comissão.
+            commissionBase = service.currentPrice - realProductCost;
+            // O custo do produto continua sendo do salão para o cálculo do lucro.
+            effectiveProductCostForProfit = realProductCost;
+        } else if (productOrigin === 'professional') {
             effectiveProductCostForProfit = 0; // Custo para o lucro do salão é zero.
         } else if (productOrigin === 'client') {
             // Para "Produto do Cliente", o custo do produto abate a base da comissão e do lucro.
             commissionBase = service.currentPrice - realProductCost;
-            profitBase = service.currentPrice - realProductCost;
-            // O custo do produto não é um custo para o salão, nem um lucro extra.
-            effectiveProductCostForProfit = 0;
         }
         
         // Ajusta o imposto se a Lei do Salão Parceiro for aplicada

@@ -1096,11 +1096,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = tooltip.getBoundingClientRect(); // Posição do ícone 'i' na tela
         const tooltipRect = tooltipText.getBoundingClientRect(); // Dimensões do balão
 
-        // Calcula a posição para centralizar o balão acima do ícone
-        let top = rect.top - tooltipRect.height - 10; // 10px de espaço acima
-        let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+        let top, left;
+
+        // Verifica se a tela está na faixa de resolução onde o zoom é aplicado (1441px a 1920px)
+        if (window.matchMedia('(min-width: 1441px) and (max-width: 1920px)').matches) {
+            // Lógica de cálculo COM correção de zoom
+            const zoomFactor = 0.9;
+            top = (rect.top / zoomFactor) - tooltipRect.height - 20; // 10px de espaço acima
+            left = (rect.left / zoomFactor) + (rect.width / zoomFactor / 1.8) - (tooltipRect.width / 1.8);
+        } else {
+            // Lógica de cálculo original, SEM correção de zoom
+            top = rect.top - tooltipRect.height - 10; // 10px de espaço acima
+            left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+        }
 
         // Exceção para os tooltips da sidebar, movendo-os para a esquerda
+        // Este ajuste é aplicado após o cálculo base, funcionando para ambos os casos.
         if (tooltip.id === 'add-service-tooltip' || tooltip.id === 'global-params-tooltip') {
             // Desloca o balão 50 pixels para a esquerda a partir da posição centralizada
             left -= 60;

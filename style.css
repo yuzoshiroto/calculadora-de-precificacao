@@ -1985,10 +1985,12 @@ tbody tr.drag-over {
     .sidebar {
         padding-top: 1.5rem;
         padding-bottom: 1.5rem;
+        width: 290px;
     }
 
     .logo {
         margin-bottom: 2rem;
+        width: 290px;
     }
 
     .param-group {
@@ -2069,12 +2071,19 @@ tbody tr.drag-over {
     .sidebar-sticky-content {
         overflow-y: hidden;
         height: calc(100vh - 130px); /* Aumenta a altura para evitar corte do conteúdo */
-        top: 110px; /* Move o container para cima */
+        top: 100px; /* Move o container para cima */
+        width: 240px;
     }
 
     /* Aplica a escala no formulário da barra lateral */
     #params-form {
         transform-origin: top;
+    }
+}
+
+@media (min-width: 1441px) and (max-width: 1920px) {
+    #params-form {
+        zoom: 0.9;
     }
 }
 

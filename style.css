@@ -38,6 +38,7 @@ body {
 
 ::-webkit-scrollbar-track {
     background: var(--bg-dark); /* Fundo da barra de rolagem */
+    border-radius: 20px;
 }
 
 ::-webkit-scrollbar-thumb {

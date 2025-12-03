@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         by: 'name', dir: 'asc' // A ordem padrão agora é A-Z por nome
     };
     let appState = {}; // O estado principal da aplicação
-    let editingServiceName = null; // Rastreia o serviço que está sendo editado
+    let editingServiceId = null; // Rastreia o ID do serviço que está sendo editado
     let breakdownChart;
     
     // --- FUNÇÕES DE LÓGICA DE CÁLCULO (O CORAÇÃO DA PLANILHA) ---
@@ -203,11 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSortIcons();
         tableBody.innerHTML = '';
 
-        servicesToDisplay.forEach((service) => {
+        servicesToDisplay.forEach((service, index) => {
             const row = document.createElement('tr');
-            row.dataset.serviceName = service.name;
+            row.dataset.serviceId = service.id;
 
-            const isInEditMode = service.name === editingServiceName;
+            const isInEditMode = service.id === editingServiceId;
             // Lógica de cor do lucro com 3 estados:
             // - Vermelho (profit-low): Lucro negativo ou zero.
             // - Amarelo (profit-medium): Lucro positivo, mas abaixo do desejado.
@@ -273,8 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="${profitTextClass}">${formatCurrency(service.financialProfit)}</td>
                     <td><span class="profit-cell ${profitClass}">${(service.profitPercentage * 100).toFixed(2)}%</span></td>
                     <td>
-                        <button class="action-btn save-service-btn" title="Salvar Alterações" data-service-name="${service.name}">✔️</button>
-                        <button class="action-btn config-cost-btn" title="Configurar Custo de Produto" data-service-name="${service.name}">⚙️</button>
+                        <button class="action-btn save-service-btn" title="Salvar Alterações" data-service-id="${service.id}">✔️</button>
+                        <button class="action-btn config-cost-btn" title="Configurar Custo de Produto" data-service-id="${service.id}">⚙️</button>
                     </td>
                 `;
             } else {
@@ -289,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="${profitTextClass}">${formatCurrency(service.financialProfit)}</td>
                     <td><span class="profit-cell ${profitClass}">${(service.profitPercentage * 100).toFixed(2)}%</span></td>
                     <td>
-                        <button class="action-btn edit-service-btn" data-service-name="${service.name}">✏️</button>
-                        <button class="action-btn remove-service-btn" data-service-name="${service.name}">🗑️</button>
+                        <button class="action-btn edit-service-btn" data-service-id="${service.id}">✏️</button>
+                        <button class="action-btn remove-service-btn" data-service-id="${service.id}">🗑️</button>
                     </td>
                 `;
             }
@@ -749,8 +749,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateDashboard(serviceName) {
-        const service = appState.services.find(s => s.name === serviceName);
+    function updateDashboard(serviceId) {
+        const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
 
         document.getElementById('selected-service-name').textContent = service.name;
@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Atualiza a linha selecionada na tabela
         document.querySelectorAll('#pricing-table-body tr').forEach(row => {
-            row.classList.toggle('selected', row.dataset.serviceName === serviceName);
+            row.classList.toggle('selected', row.dataset.serviceId === serviceId);
         });
 
         // Renderiza as novas seções de análise
@@ -788,6 +788,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadState() {
         const savedState = localStorage.getItem('pricingAppState');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            // Migração: Garante que serviços antigos sem ID recebam um
+            if (state.services && state.services.length > 0) {
+                state.services.forEach(service => {
+                    if (!service.id) service.id = crypto.randomUUID();
+                });
+            }
+            return state;
+        }
         return savedState ? JSON.parse(savedState) : JSON.parse(JSON.stringify(INITIAL_STATE)); // Deep copy
     }
 
@@ -931,7 +941,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const cost = parseFormattedNumber(costInput.value);
 
         if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission) && !isNaN(cost) && !isNaN(adminFee)) {
-            const newService = { name, currentPrice: inputValue, commission, productCost: cost, adminFee, productOrigin };
+            const newService = {
+                id: crypto.randomUUID(), // Adiciona um ID único
+                name,
+                currentPrice: inputValue,
+                commission,
+                productCost: cost,
+                adminFee,
+                productOrigin
+            };
             appState.services.push(newService);
 
             // Limpa os campos
@@ -952,8 +970,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DO MODAL DE CUSTO DE PRODUTO ---
 
-    function openProductCostModal(serviceName) {
-        const service = appState.services.find(s => s.name === serviceName);
+    function openProductCostModal(serviceId) {
+        const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
 
         const modal = document.getElementById('product-cost-modal');
@@ -962,8 +980,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const calculatorBtn = document.getElementById('modal-calculator-btn');
         const costContainer = document.getElementById('modal-cost-container');
 
-        // Armazena o nome do serviço no modal para referência
-        modal.dataset.serviceName = serviceName;
+        // Armazena o ID do serviço no modal para referência
+        modal.dataset.serviceId = serviceId;
 
         // Preenche os campos com os dados atuais do serviço
         originSelect.value = service.productOrigin || 'salon';
@@ -989,8 +1007,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveProductCostFromModal() {
         const modal = document.getElementById('product-cost-modal');
-        const serviceName = modal.dataset.serviceName;
-        const service = appState.services.find(s => s.name === serviceName);
+        const serviceId = modal.dataset.serviceId;
+        const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
 
         service.productOrigin = document.getElementById('modal-product-origin').value;
@@ -1000,8 +1018,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fullRecalculateAndRender(); // Recalcula e re-renderiza tudo com os novos valores
     }
 
-    function handleSaveService(serviceName) {
-        const row = document.querySelector(`tr[data-service-name="${serviceName}"]`);
+    function handleSaveService(serviceId) {
+        const row = document.querySelector(`tr[data-service-id="${serviceId}"]`);
         if (!row) return;
 
         const priceInput = row.querySelector('.current-price-input');
@@ -1010,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminFeeInput = row.querySelector('.admin-fee-input');
 
         // Encontra o serviço no estado da aplicação
-        const service = appState.services.find(s => s.name === serviceName);
+        const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
 
         // Lê os valores dos campos
@@ -1030,17 +1048,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Sai do modo de edição e renderiza tudo
-        editingServiceName = null;
+        editingServiceId = null;
         fullRecalculateAndRender();
 
         // Mantém o serviço recém-editado selecionado no dashboard
-        updateDashboard(serviceName);
+        updateDashboard(serviceId);
     }
 
     function handleRemoveService(event) {
-        const serviceName = event.target.dataset.serviceName;
+        const serviceId = event.target.dataset.serviceId;
+        const service = appState.services.find(s => s.id === serviceId);
+        if (!service) return;
+        const serviceName = service.name;
         if (confirm(`Tem certeza que deseja remover o serviço "${serviceName}"?`)) {
-            appState.services = appState.services.filter(s => s.name !== serviceName);
+            appState.services = appState.services.filter(s => s.id !== serviceId);
             fullRecalculateAndRender();
         }
     }
@@ -1133,10 +1154,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mantém o dashboard atualizado com o serviço selecionado
         const selectedRow = document.querySelector('#pricing-table-body tr.selected');
         if (selectedRow) {
-            updateDashboard(selectedRow.dataset.serviceName);
+            updateDashboard(selectedRow.dataset.serviceId);
         } else if (appState.services.length > 0) {
             // Se nenhum estiver selecionado, seleciona o primeiro
-             updateDashboard(appState.services[0].name);
+             updateDashboard(appState.services[0].id);
         }
         
         saveState();
@@ -1169,15 +1190,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('remove-service-btn')) {
                 handleRemoveService(e);
             } else if (e.target.classList.contains('edit-service-btn')) {
-                editingServiceName = e.target.dataset.serviceName;
+                editingServiceId = e.target.dataset.serviceId;
                 renderTable(); // Apenas re-renderiza a tabela para entrar em modo de edição
             } else if (e.target.classList.contains('save-service-btn')) {
-                handleSaveService(e.target.dataset.serviceName);
+                handleSaveService(e.target.dataset.serviceId);
             } else if (e.target.classList.contains('config-cost-btn')) {
                 // NOVO: Abre o modal de configuração de custo
-                openProductCostModal(e.target.dataset.serviceName);
+                openProductCostModal(e.target.dataset.serviceId);
             } else if (row) {
-                updateDashboard(row.dataset.serviceName);
+                updateDashboard(row.dataset.serviceId);
             }
         });
         document.getElementById('add-service-btn').addEventListener('click', handleAddService);
@@ -1215,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('new-service-cost-container').style.display = 'none';
 
         if (appState.services.length > 0) {
-            updateDashboard(appState.services[0].name);
+            updateDashboard(appState.services[0].id);
         }
     }
 

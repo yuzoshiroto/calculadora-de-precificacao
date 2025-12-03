@@ -991,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
         costInput.dataset.rawValue = service.productCost.toFixed(2);
 
         // Define o link do botão da calculadora, passando o nome do serviço na URL
-        calculatorBtn.href = `product_cost_calculator.html?service=${encodeURIComponent(serviceName)}`;
+        calculatorBtn.href = `product_cost_calculator.html?service=${encodeURIComponent(service.name)}`;
 
         // Controla a visibilidade do campo de valor
         costContainer.style.display = (originSelect.value === '') ? 'none' : 'block';
@@ -1014,7 +1014,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!service) return;
 
         service.productOrigin = document.getElementById('modal-product-origin').value;
-        service.productCost = service.productOrigin === 'professional' ? 0 : parseFormattedNumber(document.getElementById('modal-product-cost').value);
+        // O valor do custo do produto deve ser sempre salvo, independentemente da origem.
+        // A lógica de cálculo (calculateServiceMetrics) já sabe como tratar esse valor
+        // (ex: zerar o custo para o lucro do salão se a origem for 'professional').
+        service.productCost = parseFormattedNumber(document.getElementById('modal-product-cost').value);
 
         closeProductCostModal();
         fullRecalculateAndRender(); // Recalcula e re-renderiza tudo com os novos valores

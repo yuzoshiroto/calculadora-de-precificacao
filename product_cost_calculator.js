@@ -271,13 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
             statusLabel.textContent = originMap[service.productOrigin] || '';
             statusLabel.style.display = 'inline-block';
 
-            if (service.productOrigin === 'professional') {
-                calculatorContainer.classList.add('disabled-calculator');
-                calculatorActions.classList.add('disabled-calculator');
-            } else {
-                calculatorContainer.classList.remove('disabled-calculator');
-                calculatorActions.classList.remove('disabled-calculator');
-            }
+            calculatorContainer.classList.remove('disabled-calculator');
+            calculatorActions.classList.remove('disabled-calculator');
         } else {
             // Reseta para o estado "Geral"
             statusLabel.style.display = 'none';

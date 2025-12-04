@@ -10,10 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyTotalBtn = document.getElementById('copy-total-btn');
     const totalDoseCostEl = document.getElementById('total-dose-cost');
 
+    const extraTaxInput = document.getElementById('extra-tax-input');
     const GENERAL_CALCULATOR_KEY = 'productCostCalculatorState_general';
     const DASHBOARD_STATE_KEY = 'pricingAppState';
+    const SETTINGS_KEY = 'productCostCalculatorSettings'; // Chave para configurações globais da calculadora
     let currentCalculatorKey = GENERAL_CALCULATOR_KEY;
-
+    let calculatorSettings = { extraTax: 0 }; // Estado para as configurações
     // --- FUNÇÕES DE FORMATAÇÃO E PARSE ---
     const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const parseFormattedNumber = (value) => parseFloat(String(value).replace(/\./g, '').replace(',', '.')) || 0;
@@ -47,13 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calculateTotal = () => {
-        let total = 0;
+        let subTotal = 0;
         const rows = tableBody.querySelectorAll('tr');
         rows.forEach(row => {
-            total += calculateRow(row);
+            subTotal += calculateRow(row);
         });
-        totalDoseCostEl.textContent = formatCurrency(total);
 
+        // Aplica a taxa extra
+        const extraTax = calculatorSettings.extraTax || 0;
+        const total = subTotal * (1 + extraTax);
+
+        totalDoseCostEl.textContent = formatCurrency(total);
         // Atualiza o contador de produtos
         const productCount = rows.length;
         const productCountDisplay = document.getElementById('product-count-display');
@@ -198,6 +204,18 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(currentCalculatorKey, JSON.stringify(state));
     };
 
+    const saveSettings = () => {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(calculatorSettings));
+    };
+
+    const loadSettings = () => {
+        const savedSettings = localStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+            calculatorSettings = JSON.parse(savedSettings);
+            extraTaxInput.value = (calculatorSettings.extraTax * 100).toFixed(1).replace('.', ',');
+        }
+    };
+
     const loadState = () => {
         const savedState = localStorage.getItem(currentCalculatorKey);
         if (savedState) {
@@ -256,6 +274,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro ao copiar valor: ', err);
             alert('Não foi possível copiar o valor.');
         });
+    });
+
+    extraTaxInput.addEventListener('change', (e) => {
+        const value = parseFloat(e.target.value.replace(',', '.')) || 0;
+        calculatorSettings.extraTax = value / 100;
+        // Formata o valor no campo
+        e.target.value = value.toFixed(1).replace('.', ',');
+        saveSettings();
+        calculateTotal();
     });
 
     const updateCalculatorState = (serviceName) => {
@@ -347,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- INICIALIZAÇÃO ---
+    loadSettings();
     const wasLoadedFromUrl = initializeSelector();
     // Só carrega o estado inicial (Geral) se nenhum serviço específico foi carregado pela URL
     if (!wasLoadedFromUrl) {

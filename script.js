@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (productOrigin === 'salon') {
             // Para "Produto do Salão", o custo do produto abate a base da comissão.
-            commissionBase = service.currentPrice - realProductCost;
             // O custo do produto continua sendo do salão para o cálculo do lucro.
             effectiveProductCostForProfit = realProductCost;
         } else if (productOrigin === 'professional') {

@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     copyTotalBtn.addEventListener('click', () => {
         // O valor mais útil para copiar é o percentual, para ser usado no dashboard principal.
-        const totalValueText = totalCostPercentageEl.textContent; // Ex: "34.56%"
+        const totalValueText = totalFixedCostPercentageEl.textContent; // Ex: "34.56%"
         // Extrai o valor numérico (ex: "34.56") e substitui o ponto por vírgula.
         const valueToCopy = totalValueText.replace('%', '').trim().replace('.', ',');
 

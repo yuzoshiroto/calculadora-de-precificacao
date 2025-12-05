@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedSettings = localStorage.getItem(SETTINGS_KEY);
         if (savedSettings) {
             calculatorSettings = JSON.parse(savedSettings);
-            extraTaxInput.value = (calculatorSettings.extraTax * 100).toFixed(1).replace('.', ',');
+            extraTaxInput.value = (calculatorSettings.extraTax * 100).toFixed(2).replace('.', ',');
         }
     };
 
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const value = parseFloat(e.target.value.replace(',', '.')) || 0;
         calculatorSettings.extraTax = value / 100;
         // Formata o valor no campo
-        e.target.value = value.toFixed(1).replace('.', ',');
+        e.target.value = value.toFixed(2).replace('.', ',');
         saveSettings();
         calculateTotal();
     });

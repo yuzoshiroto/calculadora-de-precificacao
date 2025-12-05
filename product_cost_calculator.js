@@ -26,6 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    // Função para sanitizar a entrada em campos numéricos, removendo caracteres não permitidos
+    const sanitizeNumericOnInput = (event) => {
+        const input = event.target;
+        let value = input.value;
+        // Permite apenas uma vírgula
+        const parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts.slice(1).join('');
+        }
+        // Remove qualquer caractere que não seja um dígito ou a vírgula
+        input.value = value.replace(/[^0-9,]/g, '');
+    };
+
     // --- LÓGICA PRINCIPAL ---
     const isServiceCalculator = () => currentCalculatorKey !== GENERAL_CALCULATOR_KEY;
 
@@ -118,19 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <td><button class="action-btn remove-row-btn" title="Remover Produto">🗑️</button></td>
         `;
 
-        // Adiciona listener para restringir a entrada apenas a números e vírgula
-        row.querySelectorAll('.number-input').forEach(input => {
-            input.addEventListener('keydown', (e) => {
-                // Permite teclas de controle (Backspace, Tab, Enter, setas, etc.), colar (Ctrl+V) e números.
-                if (['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Delete', 'Home', 'End'].includes(e.key) ||
-                    (e.ctrlKey && e.key.toLowerCase() === 'v') ||
-                    /[0-9,]/.test(e.key)) {
-                    return; // Permite a tecla
-                }
-                e.preventDefault(); // Bloqueia qualquer outra tecla
-            });
-        });
-
         // Listeners para formatação de número (foco e perda de foco)
         const formattedInput = row.querySelector('.formatted-number-input');
         formattedInput.addEventListener('focus', (e) => {
@@ -163,6 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         // Adiciona listeners para cálculo automático
         row.querySelectorAll('input').forEach(input => {
+            // Adiciona sanitização em todos os campos numéricos da linha
+            if (input.classList.contains('number-input')) {
+                input.addEventListener('input', sanitizeNumericOnInput);
+            }
+
             input.addEventListener('input', calculateTotal);
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -276,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    extraTaxInput.addEventListener('input', sanitizeNumericOnInput);
     extraTaxInput.addEventListener('change', (e) => {
         const value = parseFloat(e.target.value.replace(',', '.')) || 0;
         calculatorSettings.extraTax = value / 100;

@@ -63,6 +63,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    // Função para sanitizar a entrada em campos numéricos, removendo caracteres não permitidos
+    const sanitizeNumericOnInput = (event) => {
+        const input = event.target;
+        let value = input.value;
+        // Permite apenas uma vírgula
+        const parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts.slice(1).join('');
+        }
+        // Remove qualquer caractere que não seja um dígito ou a vírgula
+        input.value = value.replace(/[^0-9,]/g, '');
+    };
+
     // --- FUNÇÃO PARA AJUSTAR LARGURA DO INPUT DE FATURAMENTO ---
     const updateRevenueInputWidth = () => {
         // Cria um span temporário e invisível para medir o texto
@@ -159,11 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Listeners de formatação
         const formattedInput = row.querySelector('.formatted-number-input');
-
-        // Restringe a entrada apenas para números e vírgula
-        formattedInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9,]/g, '');
-        });
 
         formattedInput.addEventListener('focus', (e) => {
             const rawValue = e.target.dataset.rawValue || '0';
@@ -312,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listeners para o campo de faturamento
     revenueInput.addEventListener('input', updateRevenueInputWidth);
+    revenueInput.addEventListener('input', sanitizeNumericOnInput);
     revenueInput.addEventListener('input', calculateAll);
     revenueInput.addEventListener('focus', (e) => {
         const rawValue = e.target.dataset.rawValue || '0';
@@ -325,6 +334,11 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateAll();
         updateRevenueInputWidth(); // Atualiza a largura também no blur
     });
+
+    // Adiciona sanitização para as tabelas via delegação de evento
+    document.getElementById('fixed-cost-table').addEventListener('input', (e) => { if (e.target.classList.contains('formatted-number-input')) sanitizeNumericOnInput(e); });
+    document.getElementById('variable-cost-table').addEventListener('input', (e) => { if (e.target.classList.contains('formatted-number-input')) sanitizeNumericOnInput(e); });
+
 
     // --- INICIALIZAÇÃO ---
     loadState();

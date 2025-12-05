@@ -1093,6 +1093,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Função para sanitizar a entrada em campos numéricos, removendo caracteres não permitidos
+    function sanitizeNumericOnInput(event) {
+        const input = event.target;
+        let value = input.value;
+        // Permite apenas uma vírgula
+        const parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts.slice(1).join('');
+        }
+        // Remove qualquer caractere que não seja um dígito ou a vírgula
+        input.value = value.replace(/[^0-9,]/g, '');
+    }
+
     function updateSortIcons() {
         document.querySelectorAll('.sort-icons').forEach(iconSet => {
             const columnSortBy = iconSet.dataset.sortBy;
@@ -1181,6 +1194,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pricing-table-body').addEventListener('focusin', handleInputFocus);
         document.getElementById('pricing-table-body').addEventListener('focusout', handleInputBlur);
 
+        // Adiciona sanitização no input para campos numéricos na tabela
+        document.getElementById('pricing-table-body').addEventListener('input', (e) => {
+            if (e.target.classList.contains('formatted-number-input') || e.target.type === 'number') {
+                sanitizeNumericOnInput(e);
+            }
+        });
+
         document.getElementById('service-manager').addEventListener('focusin', handleInputFocus);
         document.getElementById('service-manager').addEventListener('focusout', handleInputBlur);
         document.getElementById('pricing-table-body').addEventListener('click', (e) => {
@@ -1214,6 +1234,13 @@ document.addEventListener('DOMContentLoaded', () => {
             costContainer.style.display = e.target.value === '' ? 'none' : 'block';
         });
 
+        // Adiciona sanitização no input para campos numéricos no formulário de adicionar serviço
+        document.getElementById('service-manager').addEventListener('input', (e) => {
+            if (e.target.classList.contains('formatted-number-input') || e.target.type === 'number') {
+                sanitizeNumericOnInput(e);
+            }
+        });
+
         // --- Listeners do Modal ---
         const modal = document.getElementById('product-cost-modal');
         document.getElementById('modal-save-btn').addEventListener('click', saveProductCostFromModal);
@@ -1227,6 +1254,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const costContainer = document.getElementById('modal-cost-container');
             costContainer.style.display = e.target.value === '' ? 'none' : 'block';
         });
+        // Adiciona sanitização no input para o campo de custo no modal
+        document.getElementById('modal-product-cost').addEventListener('input', sanitizeNumericOnInput);
+
+        // Adiciona sanitização para os parâmetros globais
+        document.getElementById('financial-params').addEventListener('input', sanitizeNumericOnInput);
 
         // Adiciona listeners para os tooltips
         document.querySelectorAll('.info-tooltip').forEach(tooltip => {

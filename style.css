@@ -2481,7 +2481,7 @@ tbody tr.drag-over {
 
 /* --- Estilos para a Seção de Taxa Extra (product_cost_calculator.html) --- */
 .extra-tax-section {
-    max-width: 300px; /* Aumentado para acomodar o conteúdo em uma linha */
+    width: fit-content; /* Faz a largura se ajustar ao conteúdo */
     margin-bottom: 2rem;
     padding: 1.5rem;
     background-color: var(--bg-light);
@@ -2495,6 +2495,7 @@ tbody tr.drag-over {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 13px; /* Adiciona um espaçamento entre o título e o campo */
 }
 
 .extra-tax-section h4 {
@@ -2505,16 +2506,32 @@ tbody tr.drag-over {
 }
 
 .extra-tax-section #extra-tax-input {
-    width: 80px;
-    padding: 10px 8px;
+    width: 100px; /* Aumentado para acomodar o padding */
+    padding: 10px 25px 10px 8px; /* Adiciona padding à direita para o símbolo */
     background-color: var(--bg-dark);
     border: none;
     color: var(--text-primary);
     border-radius: 5px;
     text-align: center;
     font-weight: 400;
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Levemente reduzido para melhor encaixe */
     font-family: 'Poppins', sans-serif;
+}
+
+/* Posiciona o símbolo '%' dentro do campo de Taxa Extra */
+.extra-tax-section .input-with-symbol {
+    position: relative;
+}
+
+.extra-tax-section .input-with-symbol::after {
+    content: '%';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    pointer-events: none; /* Garante que o símbolo não interfira com o clique no input */
 }
 
 .extra-tax-title-wrapper {
@@ -2528,6 +2545,21 @@ tbody tr.drag-over {
     text-align: center;
     font-weight: 400;
     font-size: 0.85rem;
+}
+
+@media (max-width: 1440px) {
+    /* Reduz o tamanho do campo de preenchimento da Taxa Extra */
+    .extra-tax-section #extra-tax-input {
+        width: 75px;
+        padding: 8px 22px 8px 8px;
+        font-size: 1.1rem;
+    }
+
+    /* Ajusta o símbolo de % para o novo tamanho do campo */
+    .extra-tax-section .input-with-symbol::after {
+        font-size: 1.2rem;
+        right: 10px;
+    }
 }
 
 @media (max-width: 1366px) {

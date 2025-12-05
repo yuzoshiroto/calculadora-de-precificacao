@@ -285,6 +285,39 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateTotal();
     });
 
+    // --- LÓGICA PARA POSICIONAMENTO DINÂMICO DO TOOLTIP DA TAXA EXTRA ---
+    function handleExtraTaxTooltipPosition(event) {
+        const tooltip = event.currentTarget; // O .info-tooltip
+        const tooltipText = tooltip.querySelector('.tooltip-text');
+        
+        // Reseta a posição para o cálculo
+        tooltipText.style.left = '';
+        tooltipText.style.top = '';
+        tooltipText.style.transform = '';
+
+        const rect = tooltip.getBoundingClientRect(); // Posição do ícone 'i' na tela
+        const tooltipRect = tooltipText.getBoundingClientRect(); // Dimensões do balão
+
+        let top, left;
+        const marginAbove = 15; // Espaço entre o ícone e o tooltip
+
+        // Verifica se a tela está na faixa de resolução onde o zoom é aplicado (1441px a 1920px)
+        if (window.matchMedia('(min-width: 1441px) and (max-width: 1920px)').matches) {
+            const zoomFactor = 0.9; // Assumindo que o zoom é 90%
+            // Calcula a posição considerando o zoom
+            top = (rect.top / zoomFactor) - (tooltipRect.height / zoomFactor) - (marginAbove / zoomFactor);
+            left = (rect.left / zoomFactor) + (rect.width / 1.6 / zoomFactor) - (tooltipRect.width / 1.6 / zoomFactor);
+        } else {
+            // Lógica de cálculo original, SEM correção de zoom
+            top = rect.top - tooltipRect.height - marginAbove;
+            left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+        }
+
+        // Define a posição final do balão
+        tooltipText.style.top = `${top}px`;
+        tooltipText.style.left = `${left}px`;
+    }
+
     const updateCalculatorState = (serviceName) => {
         const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
         const service = dashboardState?.services.find(s => s.name === serviceName);
@@ -373,6 +406,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return !!serviceFromUrl; // Retorna true se um serviço foi carregado da URL
     };
 
+    // Adiciona listeners para o tooltip da Taxa Extra
+    const extraTaxTooltip = document.querySelector('.extra-tax-section .info-tooltip');
+    if (extraTaxTooltip) {
+        extraTaxTooltip.addEventListener('mouseenter', handleExtraTaxTooltipPosition);
+        extraTaxTooltip.addEventListener('mouseover', handleExtraTaxTooltipPosition); // Garante o reposicionamento
+    }
     // --- INICIALIZAÇÃO ---
     loadSettings();
     const wasLoadedFromUrl = initializeSelector();

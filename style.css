@@ -2481,21 +2481,24 @@ tbody tr.drag-over {
 
 /* --- Estilos para a Seção de Taxa Extra (product_cost_calculator.html) --- */
 .extra-tax-section {
-    max-width: 250px;
+    max-width: 300px; /* Aumentado para acomodar o conteúdo em uma linha */
     margin-bottom: 2rem;
     padding: 1.5rem;
     background-color: var(--bg-light);
     box-shadow: var(--shadow);
-    border-radius: 12px; /* Adicionado para consistência com outros cards */
+    border-radius: 12px;
 }
 
 .extra-tax-section .detail-card {
     padding: 0;
     background: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .extra-tax-section h4 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0; /* Remove a margem para alinhar corretamente */
     font-size: 1.2rem; /* Tamanho igual ao de "Faturamento do Salão" */
     color: var(--text-secondary);
     font-weight: 400;
@@ -2510,8 +2513,21 @@ tbody tr.drag-over {
     border-radius: 5px;
     text-align: center;
     font-weight: 400;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-family: 'Poppins', sans-serif;
+}
+
+.extra-tax-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Garante que a tooltip da taxa extra tenha a mesma aparência das outras */
+.extra-tax-section .tooltip-text {
+    text-align: center;
+    font-weight: 400;
+    font-size: 0.85rem;
 }
 
 @media (max-width: 1366px) {

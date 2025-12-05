@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tooltipRect = tooltipText.getBoundingClientRect(); // Dimensões do balão
 
         let top, left;
-        const marginAbove = 15; // Espaço entre o ícone e o tooltip
+        const marginAbove = 10; // Espaço entre o ícone e o tooltip (reduzido)
 
         // Verifica se a tela está na faixa de resolução onde o zoom é aplicado (1441px a 1920px)
         if (window.matchMedia('(min-width: 1441px) and (max-width: 1920px)').matches) {

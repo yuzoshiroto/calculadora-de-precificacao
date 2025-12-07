@@ -309,6 +309,23 @@ input[type="number"]::-webkit-inner-spin-button {
     color: var(--text-secondary);
 }
 
+/* Estilo para o label com seletores de unidade (%) e (R$) */
+.toggle-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.unit-toggle {
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.unit-toggle.active {
+    color: var(--primary); /* Cor verde para a unidade selecionada */
+    font-weight: 700;
+}
 
 .form-field .checkbox-label {
     display: flex;
@@ -1058,6 +1075,41 @@ td .input-with-symbol {
     transform: scale(1.2);
 }
 
+/* --- Estilos para o campo de edição da Taxa Admin na tabela --- */
+.admin-fee-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Reduz o espaço entre o input e o seletor */
+}
+
+.admin-fee-edit-container .admin-fee-input {
+    width: 50px; /* Reduz a largura do campo de valor */
+    text-align: center;
+    padding: 2px 6px; /* Reduz o padding vertical para diminuir a altura */
+    font-size: 0.9rem; /* Reduz o tamanho da fonte do input */
+}
+
+.unit-toggle-group-inline {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 2px;
+}
+
+.unit-toggle-inline {
+    padding: 1px 6px; /* Reduz o padding vertical para diminuir a altura */
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.8rem; /* Reduz o tamanho da fonte dos seletores % e R$ */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.unit-toggle-inline.active {
+    background-color: var(--primary);
+    color: #fff;
+}
 /* --- Estilos para Células Editáveis na Tabela --- */
 .editable-cell-wrapper {
     display: flex;
@@ -2287,9 +2339,12 @@ tbody tr.drag-over {
         font-size: 0.9rem; /* Reduz o tamanho da fonte */
     }
 
-    .pricing-table-container .commission-input,
-    .pricing-table-container .admin-fee-input {
+    .pricing-table-container .commission-input {
         width: 45px; /* Reduz a largura dos campos de comissão e taxa */
+        font-size: 0.9rem; /* Reduz o tamanho da fonte */
+    }
+    .pricing-table-container .admin-fee-input {
+        width: 60px !important; /* Reduz a largura do campo de taxa admin. */
         font-size: 0.9rem; /* Reduz o tamanho da fonte */
     }
 

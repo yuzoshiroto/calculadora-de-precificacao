@@ -53,8 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ? params.tax * (1 - service.commission)
             : params.tax;
         
-        // Coluna E: Valor Comissão
-        const adminFeeValue = commissionBase * (service.adminFee || 0);
+        // Coluna E: Valor Comissão - Agora considera se a taxa é percentual ou fixa
+        const adminFeeValue = service.adminFeeType === 'real'
+            ? (service.adminFee || 0)
+            : commissionBase * (service.adminFee || 0);
         const finalCommissionBase = commissionBase - adminFeeValue;
         const commissionValue = finalCommissionBase * service.commission;
         
@@ -69,19 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // A fórmula precisa considerar que a comissão não incide sobre a taxa administrativa.
         // Preço = CustoProduto + Preço * (CustosFixos + LucroDesejado) + (Preço * (1 - TaxaAdmin)) * Comissão
         const costsWithoutTax = params.marketing + params.cardFee + params.fixedCost;
+        const effectiveCommissionPercent = service.adminFeeType === 'real' ? service.commission : service.commission * (1 - (service.adminFee || 0));
+        const adminFeeFixed = service.adminFeeType === 'real' ? (service.adminFee || 0) : 0;
         let suggestedPrice = 0;
 
         if (productOrigin === 'client') {
             // Lógica especial para "Produto do Cliente"
             // P = (CustoProduto * (1 - ComissãoEfetiva)) / (1 - CustosTotais% - LucroDesejado% - ComissãoEfetiva)
-            const effectiveCommission = service.commission * (1 - (service.adminFee || 0));
-            const numerator = realProductCost * (1 - effectiveCommission);
-            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - effectiveCommission;
+            const numerator = (realProductCost * (1 - effectiveCommissionPercent)) + adminFeeFixed;
+            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - effectiveCommissionPercent;
             suggestedPrice = denominator > 0 ? numerator / denominator : 0;
         } else {
             // Lógica padrão para "Produto do Salão" e "Produto do Profissional"
-            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - service.commission * (1 - (service.adminFee || 0));
-            suggestedPrice = denominator > 0 ? (realProductCost || 0) / denominator : 0;
+            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - effectiveCommissionPercent;
+            suggestedPrice = denominator > 0 ? ((realProductCost || 0) + adminFeeFixed) / denominator : 0;
         }
 
         return {
@@ -259,6 +262,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 suggestedPriceText = formatCurrency(service.suggestedPrice);
             }
 
+            // Formata a taxa administrativa para exibição
+            let adminFeeDisplay;
+            if (service.adminFeeType === 'real') {
+                adminFeeDisplay = formatCurrency(service.adminFee || 0);
+            } else {
+                adminFeeDisplay = `${((service.adminFee || 0) * 100).toFixed(2)}%`;
+            }
+
+            // Prepara o valor e o placeholder para o campo de edição da taxa admin.
+            let adminFeeEditValue = '';
+            let adminFeeEditRawValue = '0';
+            if (service.adminFee > 0) {
+                if (service.adminFeeType === 'real') {
+                    adminFeeEditValue = formatNumberForDisplay(service.adminFee);
+                    adminFeeEditRawValue = service.adminFee.toFixed(2);
+                } else { // percent
+                    adminFeeEditValue = formatNumberForDisplay(service.adminFee * 100);
+                    adminFeeEditRawValue = (service.adminFee * 100).toFixed(2);
+                }
+            }
+
             // Renderiza campos de input ou texto simples dependendo do modo de edição
             if (isInEditMode) {
                 row.innerHTML = /*html*/`
@@ -268,7 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td><div class="input-with-prefix"><span>R$</span><input type="text" class="product-cost-input formatted-number-input" value="${formatNumberForDisplay(service.productCost)}" data-raw-value="${service.productCost.toFixed(2)}"></div></td>
                     <td><div class="input-with-symbol"><input type="number" class="commission-input" value="${formatPercentageForInput(service.commission)}" step="0.01"><span>%</span></div></td>
-                    <td><div class="input-with-symbol"><input type="number" class="admin-fee-input" value="${formatPercentageForInput(service.adminFee || 0)}" step="0.01"><span>%</span></div></td>
+                    <td>
+                        <div class="admin-fee-edit-container">
+                            <input type="text" class="admin-fee-input formatted-number-input" value="${adminFeeEditValue}" data-raw-value="${adminFeeEditRawValue}">
+                            <div class="unit-toggle-group-inline" data-unit-type="${service.adminFeeType}">
+                                <span class="unit-toggle-inline ${service.adminFeeType === 'percent' ? 'active' : ''}" data-unit="percent">%</span>
+                                <span class="unit-toggle-inline ${service.adminFeeType === 'real' ? 'active' : ''}" data-unit="real">R$</span>
+                            </div>
+                        </div>
+                    </td>
                     <td>${formatCurrency(service.commissionValue)}</td>
                     <td class="${suggestedPriceText === 'Inviável' ? 'price-unviable' : ''}">${suggestedPriceText}</td>
                     <td class="${profitTextClass}">${formatCurrency(service.financialProfit)}</td>
@@ -284,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${formatCurrency(service.currentPrice)}</td>
                     <td>${productCostCellContent}</td>
                     <td>${(service.commission * 100).toFixed(2)}%</td>
-                    <td>${((service.adminFee || 0) * 100).toFixed(2)}%</td>
+                    <td>${adminFeeDisplay}</td>
                     <td>${formatCurrency(service.commissionValue)}</td> 
                     <td class="${suggestedPriceText === 'Inviável' ? 'price-unviable' : ''}">${suggestedPriceText}</td>
                     <td class="${profitTextClass}">${formatCurrency(service.financialProfit)}</td>
@@ -764,8 +796,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('details-profit-percent').textContent = `${(service.profitPercentage * 100).toFixed(2)}%`;
         // Adiciona os novos valores aos novos cards
         document.getElementById('details-product-cost').textContent = formatCurrency(service.productCost);
-        document.getElementById('details-commission-percent').textContent = `${(service.commission * 100).toFixed(2)}%`;
-        document.getElementById('details-admin-fee-percent').textContent = `${((service.adminFee || 0) * 100).toFixed(2)}%`;
+        document.getElementById('details-commission-percent').textContent = `${(service.commission * 100).toFixed(2)}%`;        
+        const adminFeeEl = document.getElementById('details-admin-fee-percent');
+        if (service.adminFeeType === 'real') {
+            adminFeeEl.textContent = formatCurrency(service.adminFee || 0);
+        } else {
+            adminFeeEl.textContent = `${((service.adminFee || 0) * 100).toFixed(2)}%`;
+        }
         document.getElementById('details-commission-value').textContent = formatCurrency(service.commissionValue);
 
         const totalFixedCostsPercent = getTotalFixedCostsPercent(appState.parameters);
@@ -795,6 +832,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.services && state.services.length > 0) {
                 state.services.forEach(service => {
                     if (!service.id) service.id = crypto.randomUUID();
+                    // Migração: Garante que serviços antigos tenham o tipo de taxa padrão
+                    if (!service.adminFeeType) service.adminFeeType = 'percent';
                 });
             }
             return state;
@@ -935,21 +974,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = nameInput.value.trim();
         const inputValue = parseFormattedNumber(valueInput.value);
         const commission = parseFloat(commissionInput.value) / 100;
-        const adminFee = parseFloat(adminFeeInput.value) / 100 || 0;
         const productOrigin = productOriginInput.value;
         // O valor do custo deve ser sempre salvo, independentemente da origem.
         // A lógica de cálculo (calculateServiceMetrics) já trata o que fazer com esse valor.
         const cost = parseFormattedNumber(costInput.value);
 
-        if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission) && !isNaN(cost) && !isNaN(adminFee)) {
+        const adminFeeType = adminFeeInput.dataset.unitType;
+        let adminFee = parseFormattedNumber(adminFeeInput.value);
+        if (adminFeeType === 'percent') {
+            adminFee = adminFee / 100;
+        }
+
+        if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission) && !isNaN(cost)) {
             const newService = {
                 id: crypto.randomUUID(), // Adiciona um ID único
                 name,
                 currentPrice: inputValue,
                 commission,
                 productCost: cost,
+                adminFeeType,
                 adminFee,
-                productOrigin
+                productOrigin,
             };
             appState.services.push(newService);
 
@@ -958,7 +1003,8 @@ document.addEventListener('DOMContentLoaded', () => {
             valueInput.value = '';
             valueInput.dataset.rawValue = '0';
             commissionInput.value = '';
-            adminFeeInput.value = '';
+            adminFeeInput.value = ''; // Limpa o campo da taxa
+            adminFeeInput.dataset.rawValue = '0';
             costInput.value = '';
             costInput.dataset.rawValue = '0';
             productOriginInput.value = '';
@@ -1029,16 +1075,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const priceInput = row.querySelector('.current-price-input');
         const costInput = row.querySelector('.product-cost-input');
         const commissionInput = row.querySelector('.commission-input');
-        const adminFeeInput = row.querySelector('.admin-fee-input');
+        const adminFeeInput = row.querySelector('.admin-fee-input'); // Campo de valor
+        const adminFeeToggleGroup = row.querySelector('.unit-toggle-group-inline'); // Grupo de seletores
 
         // Encontra o serviço no estado da aplicação
         const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
-
         // Lê os valores dos campos
         const newPrice = parseFormattedNumber(priceInput.value);
         const newCommission = parseFloat(commissionInput.value.replace(',', '.')) / 100;
-        const newAdminFee = parseFloat(adminFeeInput.value.replace(',', '.')) / 100 || 0;
+        const newAdminFeeType = adminFeeToggleGroup.dataset.unitType;
+        let newAdminFee = parseFormattedNumber(adminFeeInput.value);
+        if (newAdminFeeType === 'percent') {
+            newAdminFee = newAdminFee / 100;
+        }
 
         // Atualiza os valores do serviço
         if (!isNaN(newCommission)) service.commission = parseFloat(newCommission.toFixed(4));
@@ -1050,6 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const newCost = parseFormattedNumber(costInput.value);
             if (!isNaN(newCost)) service.productCost = newCost;
         }
+
+        // Atualiza o tipo da taxa
+        service.adminFeeType = newAdminFeeType;
 
         // Sai do modo de edição e renderiza tudo
         editingServiceId = null;
@@ -1209,6 +1262,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!s.hasOwnProperty('productOrigin')) {
                     s.productOrigin = 'salon';
                 }
+                if (!s.hasOwnProperty('adminFeeType')) {
+                    s.adminFeeType = 'percent';
+                }
             });
             const row = e.target.closest('tr');
             if (e.target.classList.contains('remove-service-btn')) {
@@ -1221,6 +1277,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (e.target.classList.contains('config-cost-btn')) {
                 // NOVO: Abre o modal de configuração de custo
                 openProductCostModal(e.target.dataset.serviceId);
+            } else if (e.target.classList.contains('unit-toggle-inline')) {
+                // NOVO: Manipula a troca de unidade da taxa admin. na tabela
+                const toggleGroup = e.target.parentElement;
+                const selectedUnit = e.target.dataset.unit;
+
+                // Atualiza o estado visual e o data-attribute
+                toggleGroup.dataset.unitType = selectedUnit;
+                toggleGroup.querySelectorAll('.unit-toggle-inline').forEach(el => el.classList.remove('active'));
+                e.target.classList.add('active');
+                // Não é necessário recalcular aqui, isso será feito ao salvar.
             } else if (row) {
                 updateDashboard(row.dataset.serviceId);
             }
@@ -1241,6 +1307,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Listener para os seletores de unidade da taxa administrativa
+        document.querySelector('.toggle-label').addEventListener('click', (e) => {
+            if (e.target.classList.contains('unit-toggle')) {
+                const selectedUnit = e.target.dataset.unit;
+                const adminFeeInput = document.getElementById('new-service-admin-fee');
+                
+                // Atualiza o estado visual
+                document.querySelectorAll('.unit-toggle').forEach(el => el.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // Atualiza o input
+                adminFeeInput.dataset.unitType = selectedUnit;
+                adminFeeInput.placeholder = selectedUnit === 'percent' ? 'Ex: 10,00' : 'Ex: 5,00';
+                adminFeeInput.value = ''; // Limpa o valor ao trocar
+                adminFeeInput.dataset.rawValue = '0';
+            }
+        });
         // --- Listeners do Modal ---
         const modal = document.getElementById('product-cost-modal');
         document.getElementById('modal-save-btn').addEventListener('click', saveProductCostFromModal);

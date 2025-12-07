@@ -52,8 +52,11 @@
                                 <input type="text" id="new-service-price" class="formatted-number-input" placeholder="Ex: 55,00" data-raw-value="0">
                              </div>
                              <div class="form-field">
-                                <label for="new-service-admin-fee">Taxa administrativa (%)</label>
-                                <input type="number" id="new-service-admin-fee" placeholder="Ex: 10" step="0.01" min="0">
+                                <label for="new-service-admin-fee" class="toggle-label">
+                                    Taxa administrativa 
+                                    <span class="unit-toggle active" data-unit="percent">%</span> | <span class="unit-toggle" data-unit="real">R$</span>
+                                </label>
+                                <input type="text" id="new-service-admin-fee" class="formatted-number-input" placeholder="Ex: 10,00" data-raw-value="0" data-unit-type="percent">
                              </div>
                              <div class="form-field">
                                  <label for="new-service-product-origin">Custo de produto (R$)</label>

@@ -1,0 +1,1642 @@
+/* Importa uma fonte moderna do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Variáveis de Cor para fácil customização - TEMA DUO ACADEMY REFINADO APLICADO */
+:root {
+    --primary-color: #E01A85; /* Magenta vibrante (ajustado) */
+    --secondary-color: #3A1C71; /* Roxo azulado escuro */
+    --background-color: #120E1A; /* Fundo roxo bem escuro */
+    --card-bg-color: #1C1627; /* Fundo do card, um pouco mais claro */
+    --dark-accent-color: #16121f; /* Tom escuro para o gradiente */
+    --text-color: #EAEAEA; /* Texto principal (quase branco) */
+    --shadow-color: rgba(0, 0, 0, 0.2); /* Sombra mais forte para o tema escuro */
+    --pending-color: #FFC107; /* Amarelo/Ouro para pendente */
+    --concluido-color: #555; /* Cinza para concluído */
+    --neutral-color: #4a3e63; /* Roxo acinzentado para botões secundários */
+    --danger-color: #B81D34; /* Vermelho ainda mais escuro e sóbrio */
+    --success-color: #28a745; /* Verde */
+    --border-color: #332A45; /* Cor da borda sutil */
+}
+
+/* Reset e Estilos Globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-y: scroll; /* Garante que a barra de rolagem esteja sempre presente, evitando saltos no layout */
+}
+
+/* Cabeçalho e Navegação */
+header {
+    background: linear-gradient(135deg, var(--dark-accent-color) 0%, var(--secondary-color) 40%, var(--primary-color) 85%);
+    color: white;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    position: relative; /* Adicionado para posicionar a logo */
+}
+
+header h1 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+/* Novo container para a navegação */
+.header-nav-wrapper {
+    display: flex;
+    justify-content: center; /* Centraliza o conteúdo principal */
+    align-items: center;
+    position: relative; /* Para posicionar o botão de sair */
+    padding: 0 2rem; /* Garante espaço nas laterais */
+}
+
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Posiciona o container de usuário/logout à direita */
+.user-info-logout {
+    position: absolute;
+    right: 3.5rem;
+    top: 50%; /* Adicionado para melhor alinhamento vertical */
+    transform: translateY(-95%); /* Ajustado para centralização vertical precisa */
+    display: flex;
+    flex-direction: column; /* Altera a direção para vertical */
+    align-items: center;
+    gap: 0.5rem; /* Reduz o espaçamento para o layout vertical */
+}
+
+/* Estilo para a logo no cabeçalho */
+.header-logo {
+    position: absolute;
+    top: 50%;
+    left: 5rem;
+    transform: translateY(-50%);
+    height: 200px; /* Ajuste a altura conforme necessário */
+    width: auto;
+}
+
+.user-name {
+    font-weight: 600;
+    color: white;
+    font-size: 1.5rem; /* Aumenta o tamanho da fonte para melhor visibilidade */
+}
+
+.nav-button {
+    background: none;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover, .nav-button.active {
+    background-color: white;
+    color: var(--primary-color);
+    border-color: white;
+}
+
+.nav-button.btn-logout {
+    /* Mantém o mesmo estilo dos outros botões */
+    border-color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
+}
+.nav-button.btn-logout:hover {
+    /* Efeito hover igual aos outros botões */
+    background-color: white;
+    color: var(--primary-color);
+    border-color: white;
+}
+
+/* Conteúdo Principal */
+main {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+main.ranking-view {
+    max-width: 2500px;
+}
+
+/* Estilos de Cartão (Cards) */
+.card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.card h2 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    border-bottom: 2px solid rgba(51, 42, 69, 0.6); /* Cor da borda suavizada */
+    padding-bottom: 0.5rem;
+}
+
+/* Ajuste para dar mais respiro ao título dos modais */
+.modal-content > h2 {
+    margin-bottom: 0.5rem; /* Reduz a margem inferior original */
+    padding-bottom: 1rem; /* Adiciona um preenchimento para criar espaço visual */
+}
+
+/* Estilos da Página de Login */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 8rem;
+}
+
+.login-card {
+    max-width: 450px;
+    width: 100%;
+}
+
+.login-card h2 {
+    text-align: center;
+}
+
+/* Estilo para o container da senha */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 45px; /* Adiciona espaço à direita no input para o ícone */
+}
+
+.toggle-password-visibility {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0a0a0'%3e%3cpath d='M0 0h24v24H0V0z' fill='none'/%3e%3cpath d='M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3e%3c/svg%3e");
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: opacity 0.2s ease;
+    opacity: 0.7;
+}
+
+.toggle-password-visibility:hover {
+    opacity: 1;
+}
+
+.toggle-password-visibility.visible {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0a0a0'%3e%3cpath d='M0 0h24v24H0V0z' fill='none'/%3e%3cpath d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 11.5 2.73 15.89 7 19 12 19c1.52 0 2.96-.3 4.31-.82l2.72 2.72 1.41-1.41L3.41 2.86 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3e%3c/svg%3e");
+}
+
+/* Container para o link "Esqueceu sua senha?" para controlar o alinhamento */
+.forgot-password-container {
+    text-align: right;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+.forgot-password-link {
+    display: inline-block; /* Faz com que a área clicável se ajuste ao texto */
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+.error-message {
+    color: var(--danger-color);
+    background-color: rgba(184, 29, 52, 0.1);
+    border: 1px solid var(--danger-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+.success-message {
+    color: var(--success-color);
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid var(--success-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Container para ações de formulário (ex: Enviar/Voltar) */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+/* Botões */
+.btn {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit; /* Garante que a fonte seja a mesma do restante do corpo */
+    font-size: 0.95rem; /* Define um tamanho de fonte explícito para consistência */
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+}
+.btn-secondary {
+    background: var(--neutral-color);
+}
+
+.btn-info {
+    background: #5F527E;
+}
+
+
+/* Layout da Aba Colaboradores */
+.collaborator-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.collaborator-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.collaborator-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px var(--shadow-color);
+    border-color: var(--primary-color);
+}
+
+.collaborator-card h3 {
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+}
+
+.collaborator-card p {
+    color: #a0a0a0;
+    margin-bottom: 1rem;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-pendente {
+    background-color: var(--pending-color);
+    color: var(--background-color);
+}
+
+.status-avaliado {
+    background-color: var(--concluido-color);
+    color: var(--text-color);
+}
+
+/* Layout da Aba Individual do Colaborador */
+.collaborator-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-left: 60px;
+}
+
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--border-color);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding-bottom: 4px;
+}
+
+.back-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+
+.collaborator-page-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start; /* Impede que os cards estiquem para preencher a altura da linha */
+}
+
+#daily-evaluation-form .criterion-item {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0; /* Mantido */
+    padding: 0.75rem 0; /* Padding vertical reduzido para diminuir a distância */
+    border-radius: 0;
+}
+
+#daily-evaluation-form .criterion-item:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.criterion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+}
+
+.criterion-header strong {
+    flex-grow: 1;
+}
+
+.criterion-title-group {
+    flex-grow: 1;
+}
+
+.criterion-weight-info {
+    font-size: 0.8em;
+    color: #a0a0a0;
+    margin-top: 2px;
+}
+
+.points-deduction {
+    color: var(--danger-color);
+}
+
+
+.sub-criterion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Adicionado para alinhar verticalmente */
+    padding: 8px 0; /* Aumentado o padding para mais respiro */
+    margin-left: 1rem;
+    border-bottom: 1px solid #332A45;
+}
+.sub-criterion-item:last-of-type { /* Alterado para :last-of-type para mais consistência */
+    border-bottom: none;
+}
+
+
+/* Formulários e Modais */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: var(--card-bg-color);
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.modal.show .modal-content {
+    animation: modalFadeIn 0.2s ease-out forwards;
+}
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input, .form-group .custom-select__trigger {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px; /* Bordas suavemente arredondadas */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--background-color); /* Fundo escuro, mas diferente do card */
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 400;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-group .custom-select__trigger {
+     background-image: none; /* Remove a seta antiga que era uma imagem de fundo */
+     cursor: pointer;
+}
+
+/* Ajuste para que o wrapper do seletor customizado ocupe a largura total */
+.form-group .custom-select-wrapper {
+    width: 100%;
+}
+
+.form-group input:focus, .form-group .custom-select.open .custom-select__trigger {
+     outline: none;
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(224, 26, 133, 0.3); /* Efeito de brilho suave ao focar */
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.registration-date {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: #bbb;
+}
+
+.hidden {
+    display: none;
+}
+
+.subcriteria-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+#confirm-modal-message {
+    margin: 1.5rem 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.delete-collaborator-modal .modal-content {
+    margin: 20% auto;
+}
+
+
+/* Estilos do Calendário */
+#calendar-container, #ranking-calendar-container {
+    position: relative;
+    padding-bottom: 40px;
+}
+
+.calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-navigation button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-selects {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem; /* Espaço entre os seletores */
+    flex-grow: 1;
+}
+
+/* Ajuste para os seletores de data do calendário */
+.calendar-selects .custom-select-wrapper {
+    flex-basis: 115px; /* Define uma base de largura para cada seletor */
+}
+.calendar-selects .custom-select__trigger {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+
+.calendar-navigation button:hover {
+    background-color: #c4006b;
+}
+
+.calendar-navigation select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.calendar-header {
+    font-weight: bold;
+    color: #a0a0a0;
+    padding-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.calendar-day {
+    padding: 8px;
+    border-radius: 8px;
+    background: #2a233a;
+    min-height: 48px;
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+    border: 3px solid transparent;
+}
+
+.calendar-day.not-in-month {
+    background: none;
+    color: #555;
+}
+
+.calendar-day.clickable {
+    cursor: pointer;
+}
+
+.calendar-day.clickable:hover {
+    background-color: #3c3252;
+}
+
+.calendar-day.active-day {
+    background-color: #5f527e; /* Cinza roxeado mais claro para o dia ativo */
+    color: white;
+}
+
+.calendar-day.active-day:hover {
+     background-color: #746595; /* Um tom ainda mais claro para o hover */
+}
+
+.calendar-day.disabled {
+    background-color: #221c30;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.points-lost {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: white;
+    background-color: var(--danger-color);
+    border-radius: 10px;
+    padding: 1px 5px;
+    margin-top: 2px;
+    min-width: 20px;
+}
+
+.btn-today {
+    position: absolute;
+    bottom: -5px;
+    right: 0;
+    background-color: #332A45;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-today:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+
+/* Ranking */
+.ranking-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+#ranking-calendar-wrapper {
+    position: fixed; /* Alterado para flutuar sobre a página */
+    width: 380px;
+    z-index: 1010; /* Z-index maior para ficar sobre outros elementos */
+    /* Animação */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+}
+
+#ranking-calendar-wrapper.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.ranking-table-card {
+    position: relative;
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.charts-container-card {
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 1800px;
+}
+
+.ranking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.ranking-card-header h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    color: var(--primary-color);
+}
+
+.toggle-calendar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-calendar-btn:hover {
+    background-color: #332A45;
+}
+
+.toggle-calendar-btn svg {
+    fill: #a0a0a0;
+}
+
+.ranking-table-wrapper {
+    max-height: 580px;
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ranking-table th, .ranking-table td {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.ranking-table th {
+    background-color: var(--card-bg-color);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+.chart-wrapper {
+    position: relative;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+    min-height: 450px;
+}
+
+.charts-grid > .chart-wrapper:nth-child(2n) {
+    border-right: none;
+}
+.charts-grid > .chart-wrapper:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+@media (max-width: 768px) {
+    .charts-grid > .chart-wrapper:nth-last-child(-n+2) {
+        border-bottom: 1px solid var(--border-color);
+    }
+    .charts-grid > .chart-wrapper:last-child {
+        border-bottom: none;
+    }
+}
+
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-header h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.view-chart-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+.view-chart-btn:hover {
+    background-color: #332A45;
+}
+.view-chart-btn svg {
+    display: block;
+}
+
+
+.filter-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Responsividade */
+
+@media (max-width: 768px) {
+    .collaborator-page-layout {
+        grid-template-columns: 1fr;
+    }
+    nav {
+        flex-direction: column;
+    }
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+        border-left: none;
+    }
+    .chart-wrapper {
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    .charts-grid > .chart-wrapper:nth-last-child(-n+2) {
+        border-bottom: 1px solid var(--border-color);
+    }
+    .charts-grid > .chart-wrapper:last-child {
+        border-bottom: none !important;
+    }
+    .collaborator-page-header {
+        padding-left: 0;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .back-button {
+        position: static;
+        transform: none;
+        margin-bottom: 1rem;
+    }
+    .default-criteria-page-header {
+        padding-left: 0;
+    }
+    .default-criteria-page-header-title p {
+        white-space: normal;
+    }
+}
+
+/* Custom Checkbox Styles */
+.custom-checkbox {
+    display: block;
+    position: relative; /* Mantido */
+    padding-left: 35px;
+    cursor: pointer;
+    font-size: 22px;
+    user-select: none;
+    line-height: 1; /* Alterado para alinhar melhor */
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 50%; /* Alterado para centralizar */
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #332A45;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    transform: translateY(-50%); /* Adicionado para centralizar */
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+    background-color: #4a3e63;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.checkmark:after {
+    content: "X";
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    position: absolute;
+    display: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Textarea Styles */
+textarea.observation-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    margin-top: 10px;
+    min-height: 120px;
+    resize: vertical;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+textarea.observation-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(230, 0, 126, 0.5);
+}
+
+/* Meta Criterion Styles */
+.meta-criterion-item {
+    background-color: #2a233a;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.meta-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.meta-goal-display {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.meta-input-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.meta-input-group label {
+    margin-bottom: 0;
+}
+
+.meta-input-group input.evaluation-input {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    border-radius: 20px;
+    color: var(--text-color); /* Adicionado para garantir a visibilidade do texto */
+    transition: all 0.2s ease;
+}
+
+.meta-input-group input.evaluation-input::placeholder {
+    color: #6a617d; /* Cor do placeholder mais sutil */
+    opacity: 1; /* Garante que a cor seja aplicada sem transparência do navegador */
+}
+
+.meta-input-group input.evaluation-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.meta-input-group input.evaluation-input:disabled {
+    background-color: var(--card-bg-color);
+    border-color: #332A45;
+}
+
+.custom-progress-bar {
+    width: 100%;
+    height: 28px;
+    background-color: #332A45;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    border-radius: 14px;
+    width: 0%;
+    transition: width 0.4s ease-in-out;
+    display: block;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9em;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+
+/* Estilo para Formulário Desabilitado */
+form[disabled] {
+    pointer-events: none;
+}
+
+form[disabled] .criterion-item:not(.disabled),
+form[disabled] .form-group {
+    opacity: 0.5;
+}
+
+/* ESTILOS PARA CRITÉRIOS AGENDADOS */
+.criterion-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+
+.availability-notice {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #a0a0a0;
+    margin-left: 1rem;
+    white-space: nowrap;
+}
+
+.evaluation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-mode-indicator {
+    font-size: 0.8em;
+    color: #888;
+    font-weight: 600;
+}
+
+/* ESTILOS PARA ORDENAÇÃO DE CRITÉRIOS */
+.criterion-card-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.criterion-card-info {
+    flex-grow: 1;
+}
+.drag-handle {
+    cursor: grab;
+    padding-right: 1.5rem;
+    color: #b0b0b0;
+    font-size: 1.5rem;
+}
+.criterion-card.sortable-ghost {
+    opacity: 0.4;
+    background: #2a233a;
+}
+.criterion-card.animate-in {
+    animation: fadeInUp 0.2s ease-out forwards;
+    opacity: 0;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.criterion-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ESTILOS PARA FILTROS E BUSCA DE COLABORADORES */
+.collaborators-header-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.collaborators-header-controls h2 {
+    margin: 0;
+}
+
+.center-controls {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.search-container {
+    min-width: 250px;
+}
+
+#collaborator-search {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+#collaborator-search:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(230, 0, 126, 0.5);
+}
+
+.filter-buttons-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:not(.active):hover {
+    background-color: #3c3252;
+}
+
+.filter-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.collaborator-count {
+    font-size: 0.8em;
+    font-weight: 400;
+    color: #a0a0a0;
+    opacity: 0.8;
+    margin-left: 0.5rem;
+}
+/* ESTILOS PARA ABAS DE CRITÉRIOS */
+.criteria-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.criteria-page-header h2 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.criteria-header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-compact {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.criteria-tabs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.criteria-tab {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.criteria-tab:hover {
+    background-color: #2a233a; /* Cor de fundo mais clara no hover */
+}
+
+.criteria-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.add-role-btn {
+    background-color: #332A45;
+    color: var(--text-color);
+    border: 1px dashed var(--border-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s ease;
+    margin-left: 1rem;
+}
+
+.add-role-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-style: solid;
+}
+
+.delete-subcriteria-btn {
+    background: var(--neutral-color);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.subcriteria-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #332A45;
+}
+
+.subcriteria-list-item:last-child {
+    border-bottom: none;
+}
+
+/* Custom Select (Ranking Page) */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    /* width: 250px; - Removido para permitir que o wrapper se ajuste ao contêiner pai */
+}
+
+.custom-select {
+    position: relative;
+}
+
+.custom-select__trigger {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color); /* Herdado do .form-group */
+    color: var(--text-color); /* Cor do texto */
+    padding: 0.5rem 0.8rem; /* Padding reduzido para um visual mais compacto */
+    border-radius: 8px; /* Herdado do .form-group */
+    cursor: pointer;
+    font-weight: 400; /* Herdado do .form-group */
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Estilo específico para o seletor do Ranking, que não está em um .form-group */
+#role-filter-container .custom-select__trigger {
+    padding: 0.6rem 1.2rem;
+    min-width: 190px; /* Aumenta a largura mínima do filtro */
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+#role-filter-container .custom-select__trigger:hover {
+    background-color: #332A45;
+}
+
+#role-filter-container.open .custom-select__trigger {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+/* Fim do estilo específico do Ranking */
+
+.custom-select .arrow {
+    position: relative;
+    height: 10px;
+    width: 10px;
+    margin-left: 10px;
+}
+
+.custom-select .arrow::before,
+.custom-select .arrow::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 0.15rem;
+    height: 100%;
+    background-color: var(--text-color);
+    transition: all 0.15s ease;
+    border-radius: 1px;
+}
+
+.custom-select .arrow::before {
+    left: -3px;
+    transform: rotate(45deg);
+}
+
+.custom-select .arrow::after {
+    left: 3px;
+    transform: rotate(-45deg);
+}
+
+.custom-select.open .arrow::before {
+    transform: rotate(-45deg);
+}
+
+.custom-select.open .arrow::after {
+    transform: rotate(45deg);
+}
+
+.custom-options {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    z-index: 2;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.15s ease;
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.custom-option {
+    display: block;
+    padding: 0.75rem 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.custom-option:first-of-type {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.custom-option:last-of-type {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.custom-option:hover {
+    background-color: var(--background-color);
+}
+
+.custom-option.selected {
+    background-color: #5f527e;
+    color: white;
+    font-weight: 600;
+}
+
+/* Limita a altura do menu suspenso de dias do mês para evitar uma lista muito longa */
+#frequency-day-of-month-select .custom-options {
+    max-height: 250px; /* Altura aproximada para 5 itens */
+    overflow-y: auto;
+}
+
+/* Estilos da barra de rolagem para o menu de dias do mês */
+#frequency-day-of-month-select .custom-options::-webkit-scrollbar {
+    width: 12px;
+}
+
+#frequency-day-of-month-select .custom-options::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 10px;
+}
+
+#frequency-day-of-month-select .custom-options::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    border: 2px solid var(--background-color);
+}
+
+#frequency-day-of-month-select .custom-options::-webkit-scrollbar-thumb:hover {
+    background-color: #4a3e63;
+}
+
+/* Estilos da barra de rolagem para os seletores de data do calendário */
+.calendar-selects .custom-options::-webkit-scrollbar {
+    width: 12px;
+}
+
+.calendar-selects .custom-options::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 10px;
+}
+
+.calendar-selects .custom-options::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    border: 2px solid var(--background-color);
+}
+
+.calendar-selects .custom-options::-webkit-scrollbar-thumb:hover {
+    background-color: #4a3e63;
+}
+
+
+/* Modal for Chart */
+#chart-view-modal {
+    display: none; /* Inicia escondido */
+    align-items: center;
+    justify-content: center;
+}
+
+#chart-view-modal .modal-content {
+    width: 90%;
+    max-width: 1200px;
+    height: 55vh;
+    margin: 0; /* Deixa o flexbox centralizar */
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+.chart-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+}
+.chart-modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+#chart-view-modal .close-button {
+    position: static;
+    float: none;
+    font-size: 2rem;
+    line-height: 1;
+}
+#chart-modal-container {
+    flex-grow: 1;
+    position: relative;
+    padding: 1.5rem;
+    padding-top: 0;
+}
+
+/* Estilo para a informação de quem avaliou/editou */
+.evaluation-info-text {
+    font-size: 0.8rem;
+    color: #a0a0a0;
+    text-align: left;
+    margin-top: 0.75rem;
+    padding-left: 0.25rem;
+}
+
+/* Default Criteria Page Styles */
+.settings-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+.settings-btn svg {
+    width: 26px;
+    height: 26px;
+    fill: #a0a0a0;
+}
+.settings-btn:hover {
+    background-color: #332A45;
+}
+.default-criteria-page-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    position: relative;
+    padding-left: 60px;
+    gap: 1rem;
+}
+.default-criteria-page-header .back-button {
+    top: -2px;
+    transform: none;
+}
+.default-criteria-page-header-title h2 {
+    margin-bottom: 0.25rem;
+}
+.default-criteria-page-header-title p {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Estilos para a lista de ocorrências */
+.occurrences-list-container {
+    max-height: 364px; /* Altura máxima para ~7 ocorrências antes de habilitar o scroll */
+    overflow-y: auto;
+    padding-right: 10px; /* Espaço para a barra de rolagem */
+    margin-top: 1rem;
+}
+
+.occurrence-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.occurrence-item:last-child {
+    border-bottom: none;
+}
+
+.occurrence-item strong {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+/* Estilos da barra de rolagem para a lista de ocorrências */
+.occurrences-list-container::-webkit-scrollbar {
+    width: 12px; /* Largura da barra de rolagem */
+}
+
+.occurrences-list-container::-webkit-scrollbar-track {
+    background: var(--background-color); /* Cor do fundo da barra de rolagem */
+    border-radius: 10px;
+}
+
+.occurrences-list-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-color); /* Cor do "polegar" da barra de rolagem */
+    border-radius: 10px;
+    border: 2px solid var(--background-color); /* Cria um espaçamento em volta do polegar */
+}
+
+.occurrences-list-container::-webkit-scrollbar-thumb:hover {
+    background-color: #4a3e63; /* Cor do polegar ao passar o mouse */
+}

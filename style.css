@@ -2,16 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-    --bg-dark: #1a1c20;
-    --bg-light: #25282e;
-    --bg-lighter: #30343c;
-    --primary: #00bfa6;
-    --text-primary: #f1f1f1;
-    --text-secondary: #a0a0a0;
-    --border-color: #40444c;
-    --profit-high: #28a745;
-    --profit-medium: #ffc107;
-    --profit-low: #dc3545;
+    --bg-dark: #120E1A;          /* Fundo principal (roxo bem escuro) */
+    --bg-light: #1C1627;         /* Fundo de cards e sidebar */
+    --bg-lighter: #2a233a;       /* Cor para hovers e elementos mais claros */
+    --primary: #E01A85;          /* Cor primária (magenta) */
+    --text-primary: #EAEAEA;      /* Texto principal (quase branco) */
+    --text-secondary: #a0a0a0;   /* Texto secundário (cinza claro) */
+    --border-color: #332A45;      /* Cor de borda sutil */
+    --profit-high: #28a745;       /* Verde para lucro alto/sucesso */
+    --profit-medium: #FFC107;     /* Amarelo para lucro médio/aviso */
+    --profit-low: #B81D34;        /* Vermelho escuro para lucro baixo/perigo */
+    --info-color: #00bfa6;        /* Verde/Ciano para informações (cor antiga primária) */
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -89,7 +90,8 @@ body {
 }
 
 .logo img {
-    max-width: 100px;
+    max-width: 60%;
+    height: auto;
 }
 
 /* Ajuste para o conteúdo fixo começar abaixo do logo fixo */
@@ -369,7 +371,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 #add-service-btn:hover {
-    background-color: #00a793;
+    background-color: #c4006b; /* Tom mais escuro do magenta */
 }
 
 .sidebar-footer {
@@ -423,6 +425,8 @@ header h1 {
 header p {
     color: var(--text-secondary);
     font-size: 1.2rem;
+    font-style: italic;
+    opacity: 0.5;
 }
 
 /* Novo: Estilo para o botão-aba no header */
@@ -944,7 +948,7 @@ td input[type="text"].formatted-number-input:focus {
 #fixed-cost-table td input[type="number"], #variable-cost-table td input[type="number"],
 #fixed-cost-table td input[type="text"].formatted-number-input, #variable-cost-table td input[type="text"].formatted-number-input,
 #fixed-cost-table td input.text-input, #variable-cost-table td input.text-input {
-    background-color: #25282E;
+    background-color: var(--bg-light);
     border: 1px solid transparent;
     font-size: 1rem;
     font-weight: 400;
@@ -956,7 +960,7 @@ td input[type="text"].formatted-number-input:focus {
 #variable-cost-table td input[type="text"].formatted-number-input:focus,
 #fixed-cost-table td input.text-input:focus,
 #variable-cost-table td input.text-input:focus {
-    background-color: #1A1C20;
+    background-color: var(--bg-light);
     border-color: var(--primary);
     /* Mantém o destaque ao focar, se desejado, ou pode ser removido/alterado */
 }
@@ -1517,8 +1521,8 @@ tbody tr.drag-over {
 }
 
 .tip-item.info {
-    background-color: rgba(0, 191, 166, 0.1);
-    border-color: var(--primary);
+    background-color: rgba(0, 191, 166, 0.1); /* Fundo verde/ciano transparente */
+    border-color: var(--info-color);
 }
 
 .tip-icon {
@@ -1538,7 +1542,7 @@ tbody tr.drag-over {
 }
 
 .tip-item.info .tip-icon {
-    color: var(--primary);
+    color: var(--info-color);
 }
 
 .tip-text h4 {
@@ -1625,7 +1629,7 @@ tbody tr.drag-over {
 }
 
 .modal-btn-primary:hover {
-    background-color: #00a793;
+    background-color: #c4006b; /* Tom mais escuro do magenta */
 }
 
 .modal-btn-secondary {
@@ -1712,7 +1716,7 @@ tbody tr.drag-over {
 }
 
 .side-btn:hover {
-    background-color: #00a793;
+    background-color: #c4006b; /* Tom mais escuro do magenta */
 }
 
 .side-btn i {
@@ -1920,7 +1924,7 @@ tbody tr.drag-over {
 }
 
 .action-btn-primary:hover {
-    background-color: #00a793;
+    background-color: #c4006b; /* Tom mais escuro do magenta */
 }
 
 .action-btn-secondary {

@@ -102,7 +102,7 @@ body {
     height: calc(100vh - 190px); /* Altura calculada para não sobrepor o rodapé */
     overflow-y: auto; /* Adiciona rolagem se o conteúdo for maior que a altura */
     overflow-x: hidden; /* Remove a rolagem horizontal */
-    padding-bottom: 1rem;
+    padding-bottom: 0; /* CORREÇÃO: Removido padding inferior para alinhar o scroll */
     z-index: 105; /* Garante que o conteúdo da sidebar fique acima do conteúdo principal, mas abaixo do botão de toggle */
 }
 
@@ -180,6 +180,11 @@ body {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 2rem;
+}
+
+/* CORREÇÃO DE SCROLL (Base): Remove a margem inferior do último grupo */
+.param-group:last-child {
+    margin-bottom: 0;
 }
 
 .param-subtitle {
@@ -422,13 +427,19 @@ header h1 {
     font-weight: 700;
 }
 
-header p {
+/* Estilo para o subtítulo do cabeçalho (ex: "por Duo Academy") */
+.header-text > p:not(.header-description) {
     color: var(--text-secondary);
     font-size: 1.2rem;
     font-style: italic;
     opacity: 0.5;
 }
 
+/* Estilo para a descrição do cabeçalho (calculadoras) */
+.header-description {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
 /* Novo: Estilo para o botão-aba no header */
 .header-tab-button {
     display: flex;
@@ -602,7 +613,7 @@ header p {
     transition: color 0.3s;
 }
 
-/* Oculta a versão curta por padrão (para telas maiores que 1920px) */
+/* Oculta a versão curta por padrão (para telas menores que 1920px) */
 .admin-fee-label-short {
     display: none;
 }
@@ -772,7 +783,7 @@ header p {
     /* MUDANÇA: Garante que ele fique colado na borda direita da coluna */
 }
 
-.multi-info-content {
+.multi-info-card .multi-info-content {
     display: flex;
     flex-direction: column;
     gap: 0.1rem;
@@ -2236,6 +2247,11 @@ tbody tr.drag-over {
     .sidebar-sticky-content .param-group {
         margin-bottom: 1rem; /* Reduz o espaço entre os grupos */
         padding: 0.8rem; /* Reduz o padding interno dos grupos */
+    }
+
+    /* CORREÇÃO DE SCROLL (Mobile/1440px): Força margem zero no último item também nesta resolução */
+    .sidebar-sticky-content .param-group:last-child {
+        margin-bottom: 0;
     }
 
     .sidebar-sticky-content .param-item {

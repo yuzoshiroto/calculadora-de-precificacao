@@ -2137,9 +2137,9 @@ tbody tr.drag-over {
 
     /* Remove a barra de rolagem do conteúdo fixo da sidebar */
     .sidebar-sticky-content {
-        overflow-y: hidden;
-        height: calc(100vh - 130px); /* Aumenta a altura para evitar corte do conteúdo */
-        top: 100px; /* Move o container para cima */
+        overflow-y: auto;
+        height: calc(100vh - 170px); /* Ajusta a altura para o novo posicionamento */
+        top: 140px; /* Move o container para baixo */
         width: 240px;
     }
 

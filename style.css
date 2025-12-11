@@ -251,7 +251,7 @@ body {
 
 .param-item input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--text-primary);
 }
 
 /* Regra global para remover as setinhas de todos os inputs numéricos */
@@ -288,6 +288,12 @@ input[type="number"]::-webkit-inner-spin-button {
     border-radius: 5px;
 }
 
+/* Adiciona o destaque rosa ao focar nos campos */
+#service-manager input:focus,
+#service-manager select:focus {
+    outline: none;
+    border-color: var(--text-primary);
+}
 /* Estilo para o campo de seleção (dropdown) */
 #service-manager select {
     width: 100%;
@@ -897,7 +903,7 @@ th .lowercase {
 }
 
 #service-search-input:focus {
-    outline: 1px solid var(--primary);
+    outline: 1px solid var(--text-primary);
 }
 
 .clear-search-btn {
@@ -929,7 +935,8 @@ tbody tr {
 }
 
 tbody tr:hover,
-tbody tr.selected {
+tbody tr.selected,
+tbody tr.editing-row {
     background-color: var(--bg-lighter);
 }
 
@@ -952,7 +959,7 @@ td input[type="text"].formatted-number-input {
 td input[type="number"]:focus,
 td input[type="text"].formatted-number-input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--text-primary);
 }
 
 /* Estilos específicos para a tabela de Custo Fixo */
@@ -972,7 +979,7 @@ td input[type="text"].formatted-number-input:focus {
 #fixed-cost-table td input.text-input:focus,
 #variable-cost-table td input.text-input:focus {
     background-color: var(--bg-light);
-    border-color: var(--primary);
+    border-color: var(--text-primary);
     /* Mantém o destaque ao focar, se desejado, ou pode ser removido/alterado */
 }
 
@@ -1073,6 +1080,14 @@ td .input-with-symbol {
     margin-right: 10px;
     /* Espaço entre o ícone de salvar e o de configurar */
 }
+
+/* Adiciona espaçamento nos ícones da tabela de custo fixo/variável */
+.editable-table-body .edit-row-btn,
+.editable-table-body .save-row-btn {
+    margin-right: 10px;
+}
+
+
 
 /* Estilo para o custo de produto "apagado" */
 .faded-product-cost {
@@ -1668,7 +1683,7 @@ tbody tr.drag-over {
 .modal-content input[type="text"]:focus,
 .modal-content select:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--text-primary);
 }
 
 /* Reduz a largura do campo de valor no modal de custo de produto */
@@ -1820,7 +1835,7 @@ tbody tr.drag-over {
 #cost-calculator-table input:focus,
 #cost-calculator-table .select-input:focus {
     background-color: var(--bg-dark);
-    border-color: var(--primary);
+    border-color: var(--text-primary);
     outline: none;
 }
 
@@ -2001,7 +2016,7 @@ tbody tr.drag-over {
 
 #fixed-cost-table input:focus, #variable-cost-table input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--text-primary);
 }
 
 /* Alinha o valor total da calculadora de custo de produto à esquerda */

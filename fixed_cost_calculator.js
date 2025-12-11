@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalVariableCostPercentageEl = document.getElementById('total-variable-cost-percentage');
     const variableExpenseCountDisplay = document.getElementById('variable-expense-count-display');
 
+    // Estado da UI
+    let editingFixedRowId = null;
+    let editingVariableRowId = null;
+    let fixedExpenses = [];
+    let variableExpenses = [];
+
     const STATE_KEY = 'fixedCostCalculatorState_v2'; // Nova chave para evitar conflito com a versão antiga
 
     // Dados iniciais baseados na planilha estrutura_planilha_custo_fixo.json para CUSTOS FIXOS
@@ -45,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Consertos (manutenção básica)", value: 100 },
         { name: "Lavanderia (opcional)", value: 100 },
         { name: "Copa (café, capucino, bolo, etc...)", value: 100 },
+        { name: "Parcela Empréstimo/Financiamento", value: 1000 },
     ];
 
     // Dados iniciais para CUSTOS VARIÁVEIS
@@ -119,10 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calculateAll = () => {
-        const revenue = parseFloat(revenueInput.dataset.rawValue) || 0;
+        const revenue = parseFormattedNumber(revenueInput.value) || 0;
 
         // Calcula para Custos Fixos
-        const totalFixedCost = calculateTableTotal(fixedCostTableBody, revenue);
+        const totalFixedCost = fixedExpenses.reduce((sum, expense) => sum + (parseFloat(expense.value) || 0), 0);
         const totalFixedPercentage = revenue > 0 ? (totalFixedCost / revenue) * 100 : 0;
         totalFixedCostValueEl.textContent = formatCurrency(totalFixedCost);
         totalFixedCostPercentageEl.textContent = `${totalFixedPercentage.toFixed(2)}%`;
@@ -130,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fixedExpenseCountDisplay.textContent = `${fixedExpenseCount} ${fixedExpenseCount === 1 ? 'despesa' : 'despesas'}`;
 
         // Calcula para Custos Variáveis
-        const totalVariableCost = calculateTableTotal(variableCostTableBody, revenue);
+        const totalVariableCost = variableExpenses.reduce((sum, expense) => sum + (parseFloat(expense.value) || 0), 0);
         const totalVariablePercentage = revenue > 0 ? (totalVariableCost / revenue) * 100 : 0;
         totalVariableCostValueEl.textContent = formatCurrency(totalVariableCost);
         totalVariableCostPercentageEl.textContent = `${totalVariablePercentage.toFixed(2)}%`;
@@ -145,86 +152,81 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-expenses-value').textContent = formatCurrency(totalExpenses);
         document.getElementById('total-expenses-percentage').textContent = `${totalExpensesPercentage.toFixed(2)}%`;
         document.getElementById('final-result-value').textContent = formatCurrency(finalResult);
+
+        // Re-renderiza as tabelas para atualizar as porcentagens de participação
+        renderTable(fixedCostTableBody, fixedExpenses, editingFixedRowId);
+        renderTable(variableCostTableBody, variableExpenses, editingVariableRowId);
+
         saveState();
     };
 
-    const createRow = (expense = { name: '', value: 0 }, onRemoveCallback) => {
+    const createRow = (expense, isEditing) => {
         const row = document.createElement('tr');
+        row.dataset.rowId = expense.id;
         const valueAsNumber = parseFloat(expense.value) || 0;
+        const revenue = parseFormattedNumber(revenueInput.value) || 0;
+        const percentage = revenue > 0 ? (valueAsNumber / revenue) * 100 : 0;
 
-        row.innerHTML = `
-            <td><input type="text" class="text-input" placeholder="Ex: Nova Despesa" value="${expense.name}" data-col="name"></td>
-            <td><input type="text" class="number-input formatted-number-input" placeholder="0,00" value="${formatNumberForDisplay(valueAsNumber)}" data-col="value" data-raw-value="${valueAsNumber.toFixed(2)}"></td>
-            <td class="cost-percentage">0,00%</td>
-            <td><button class="action-btn remove-row-btn" title="Remover Despesa">🗑️</button></td>
-        `;
-
-        // Listeners para inputs
-        row.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculateAll);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    calculateAll();
-                    e.target.blur();
-                }
-            });
-        });
-
-        // Listeners de formatação
-        const formattedInput = row.querySelector('.formatted-number-input');
-
-        formattedInput.addEventListener('focus', (e) => {
-            const rawValue = e.target.dataset.rawValue || '0';
-            if (parseFloat(rawValue) === 0) {
-                e.target.value = '';
-            } else {
-                e.target.value = rawValue.replace('.', ',');
-            }
-            e.target.select();
-        });
-        formattedInput.addEventListener('blur', (e) => {
-            if (e.target.value.trim() === '') {
-                e.target.dataset.rawValue = '0.00';
-                e.target.value = '';
-            } else {
-                const rawValue = parseFormattedNumber(e.target.value);
-                e.target.dataset.rawValue = rawValue.toFixed(2);
-                e.target.value = formatNumberForDisplay(rawValue);
-            }
-            calculateAll();
-        });
-
-        // Listener para remover
-        row.querySelector('.remove-row-btn').addEventListener('click', () => {
-            row.remove();
-            if (onRemoveCallback) onRemoveCallback();
-            calculateAll(); // Sempre recalcula tudo
-        });
+        if (isEditing) {
+            row.classList.add('editing-row');
+            row.innerHTML = `
+                <td><input type="text" class="text-input" placeholder="Ex: Nova Despesa" value="${expense.name}" data-col="name"></td>
+                <td><input type="text" class="number-input formatted-number-input" placeholder="0,00" value="${formatNumberForDisplay(valueAsNumber)}" data-col="value" data-raw-value="${valueAsNumber.toFixed(2)}"></td>
+                <td class="cost-percentage">${percentage.toFixed(2)}%</td>
+                <td>
+                    <button class="action-btn save-row-btn" title="Salvar Alterações">✔️</button>
+                    <button class="action-btn config-row-btn" title="Configurar">⚙️</button>
+                </td>
+            `;
+        } else {
+            row.innerHTML = `
+                <td>${expense.name}</td>
+                <td>${formatCurrency(valueAsNumber)}</td>
+                <td class="cost-percentage">${percentage.toFixed(2)}%</td>
+                <td>
+                    <button class="action-btn edit-row-btn" title="Editar Despesa">✏️</button>
+                    <button class="action-btn remove-row-btn" title="Remover Despesa">🗑️</button>
+                </td>
+            `;
+        }
 
         return row;
     };
 
-    const addRow = (tableBody, expense, onRemoveCallback) => {
-        const newRow = createRow(expense, onRemoveCallback);
-        tableBody.appendChild(newRow);
-        if (!expense) {
-            newRow.querySelector('input[data-col="name"]').focus();
+    const renderTable = (tableBody, expensesData, editingId) => {
+        tableBody.innerHTML = '';
+        expensesData.forEach(expense => {
+            const isEditing = expense.id === editingId;
+            const row = createRow(expense, isEditing);
+            tableBody.appendChild(row);
+        });
+    };
+
+    const addRow = (tableBody, expensesDataRef) => {
+        const newExpense = { id: crypto.randomUUID(), name: '', value: 0 };
+        expensesDataRef.push(newExpense);
+
+        if (tableBody === fixedCostTableBody) {
+            editingFixedRowId = newExpense.id;
+            editingVariableRowId = null;
+        } else {
+            editingVariableRowId = newExpense.id;
+            editingFixedRowId = null;
         }
-        calculateAll(); // Recalcula tudo para atualizar contadores e totais
-        return newRow;
+        
+        fullRecalculateAndRender();
+        const newRowInput = tableBody.querySelector(`[data-row-id="${newExpense.id}"] input[data-col="name"]`);
+        if (newRowInput) {
+            newRowInput.focus();
+        }
     };
 
     // --- PERSISTÊNCIA DE DADOS (LocalStorage) ---
     const saveState = () => {
-        const getExpensesFromTable = (tableBody) => Array.from(tableBody.querySelectorAll('tr')).map(row => ({
-            name: row.querySelector('[data-col="name"]').value,
-            value: row.querySelector('[data-col="value"]').dataset.rawValue || '0',
-        }));
-
         const state = {
             revenue: revenueInput.dataset.rawValue || '0',
-            fixedExpenses: getExpensesFromTable(fixedCostTableBody),
-            variableExpenses: getExpensesFromTable(variableCostTableBody),
+            fixedExpenses: fixedExpenses,
+            variableExpenses: variableExpenses,
         };
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
     };
@@ -232,13 +234,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadState = () => {
         const savedState = localStorage.getItem(STATE_KEY);
 
-        const populateTable = (tableBody, savedExpenses, initialExpenses) => {
-            tableBody.innerHTML = '';
+        const populateData = (savedExpenses, initialExpenses) => {
+            let data;
             if (savedExpenses && savedExpenses.length > 0) {
-                savedExpenses.forEach(expense => addRow(tableBody, expense));
+                data = savedExpenses;
             } else {
-                initialExpenses.forEach(expense => addRow(tableBody, expense));
+                data = initialExpenses.map(e => ({ ...e, id: crypto.randomUUID() }));
             }
+            // Garantir que todos tenham ID
+            return data.map(e => e.id ? e : { ...e, id: crypto.randomUUID() });
         };
 
         if (savedState) {
@@ -246,53 +250,51 @@ document.addEventListener('DOMContentLoaded', () => {
             revenueInput.dataset.rawValue = state.revenue || '32000';
             revenueInput.value = formatNumberForDisplay(parseFloat(state.revenue));
 
-            populateTable(fixedCostTableBody, state.fixedExpenses, INITIAL_FIXED_EXPENSES);
-            populateTable(variableCostTableBody, state.variableExpenses, INITIAL_VARIABLE_EXPENSES);
+            fixedExpenses = populateData(state.fixedExpenses, INITIAL_FIXED_EXPENSES);
+            variableExpenses = populateData(state.variableExpenses, INITIAL_VARIABLE_EXPENSES);
         } else {
             // Primeiro acesso, carrega valores padrão
             revenueInput.dataset.rawValue = '32000.00';
             revenueInput.value = formatNumberForDisplay(32000);
-            populateTable(fixedCostTableBody, null, INITIAL_FIXED_EXPENSES);
-            populateTable(variableCostTableBody, null, INITIAL_VARIABLE_EXPENSES);
+            fixedExpenses = populateData(null, INITIAL_FIXED_EXPENSES);
+            variableExpenses = populateData(null, INITIAL_VARIABLE_EXPENSES);
         }
-        calculateAll();
+        fullRecalculateAndRender();
     };
 
     // --- MANIPULADORES DE EVENTOS ---
-    addExpenseBtn.addEventListener('click', () => addRow(fixedCostTableBody));
+    addExpenseBtn.addEventListener('click', () => addRow(fixedCostTableBody, fixedExpenses));
 
     clearAllBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja limpar todas as despesas da tabela?')) {
-            fixedCostTableBody.innerHTML = '';
-            addRow(fixedCostTableBody); // Adiciona uma linha em branco para recomeçar
-            calculateAll();
+            fixedExpenses = [];
+            addRow(fixedCostTableBody, fixedExpenses); // Adiciona uma linha em branco para recomeçar
         }
     });
 
     resetToDefaultBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja resetar a tabela para as despesas padrão? Todos os dados atuais serão perdidos.')) {
-            fixedCostTableBody.innerHTML = '';
-            INITIAL_FIXED_EXPENSES.forEach(expense => addRow(fixedCostTableBody, expense));
-            calculateAll();
+            fixedExpenses = INITIAL_FIXED_EXPENSES.map(e => ({ ...e, id: crypto.randomUUID() }));
+            editingFixedRowId = null;
+            fullRecalculateAndRender();
         }
     });
 
     // Eventos para a tabela de custos variáveis
-    addVariableExpenseBtn.addEventListener('click', () => addRow(variableCostTableBody));
+    addVariableExpenseBtn.addEventListener('click', () => addRow(variableCostTableBody, variableExpenses));
 
     clearVariableAllBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja limpar todas as despesas variáveis da tabela?')) {
-            variableCostTableBody.innerHTML = '';
-            addRow(variableCostTableBody);
-            calculateAll();
+            variableExpenses = [];
+            addRow(variableCostTableBody, variableExpenses);
         }
     });
 
     resetVariableToDefaultBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja resetar a tabela de custos variáveis para as despesas padrão?')) {
-            variableCostTableBody.innerHTML = '';
-            INITIAL_VARIABLE_EXPENSES.forEach(expense => addRow(variableCostTableBody, expense));
-            calculateAll();
+            variableExpenses = INITIAL_VARIABLE_EXPENSES.map(e => ({ ...e, id: crypto.randomUUID() }));
+            editingVariableRowId = null;
+            fullRecalculateAndRender();
         }
     });
 
@@ -317,28 +319,104 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const handleTableClick = (e, tableBody, expensesDataRef) => {
+        const target = e.target;
+        const row = target.closest('tr');
+        if (!row) return;
+
+        const rowId = row.dataset.rowId;
+
+        if (target.classList.contains('edit-row-btn')) {
+            if (tableBody === fixedCostTableBody) {
+                editingFixedRowId = rowId;
+            } else {
+                editingVariableRowId = rowId;
+            }
+            fullRecalculateAndRender();
+        } else if (target.classList.contains('remove-row-btn')) {
+            if (confirm('Tem certeza que deseja remover esta despesa?')) {
+                const index = expensesDataRef.findIndex(exp => exp.id === rowId);
+                if (index > -1) {
+                    expensesDataRef.splice(index, 1);
+                    fullRecalculateAndRender();
+                }
+            }
+        } else if (target.classList.contains('save-row-btn')) {
+            const nameInput = row.querySelector('[data-col="name"]');
+            const valueInput = row.querySelector('[data-col="value"]');
+            const expense = expensesDataRef.find(exp => exp.id === rowId);
+
+            if (expense) {
+                expense.name = nameInput.value;
+                expense.value = parseFormattedNumber(valueInput.value);
+            }
+
+            if (tableBody === fixedCostTableBody) {
+                editingFixedRowId = null;
+            } else {
+                editingVariableRowId = null;
+            }
+            fullRecalculateAndRender();
+        }
+    };
+
+    fixedCostTableBody.addEventListener('click', (e) => handleTableClick(e, fixedCostTableBody, fixedExpenses));
+    variableCostTableBody.addEventListener('click', (e) => handleTableClick(e, variableCostTableBody, variableExpenses));
+
+    const handleTableInput = (e) => {
+        if (e.target.classList.contains('formatted-number-input')) {
+            sanitizeNumericOnInput(e);
+        }
+        if (e.target.tagName === 'INPUT') {
+            const row = e.target.closest('tr');
+            const valueInput = row.querySelector('[data-col="value"]');
+            if (valueInput) {
+                const rawValue = parseFormattedNumber(valueInput.value);
+                valueInput.dataset.rawValue = rawValue.toFixed(2);
+            }
+        }
+    };
+
+    fixedCostTableBody.addEventListener('input', handleTableInput);
+    variableCostTableBody.addEventListener('input', handleTableInput);
+
+    const handleTableBlur = (e) => {
+        if (e.target.classList.contains('formatted-number-input')) {
+            const input = e.target;
+            if (input.value.trim() === '') {
+                input.dataset.rawValue = '0.00';
+                input.value = '';
+            } else {
+                const rawValue = parseFormattedNumber(input.value);
+                input.dataset.rawValue = rawValue.toFixed(2);
+                input.value = formatNumberForDisplay(rawValue);
+            }
+        }
+    };
+
+    fixedCostTableBody.addEventListener('focusout', handleTableBlur);
+    variableCostTableBody.addEventListener('focusout', handleTableBlur);
 
     // Listeners para o campo de faturamento
     revenueInput.addEventListener('input', updateRevenueInputWidth);
     revenueInput.addEventListener('input', sanitizeNumericOnInput);
-    revenueInput.addEventListener('input', calculateAll);
+    revenueInput.addEventListener('input', fullRecalculateAndRender);
     revenueInput.addEventListener('focus', (e) => {
         const rawValue = e.target.dataset.rawValue || '0';
         e.target.value = rawValue.replace('.', ',');
         e.target.select();
     });
     revenueInput.addEventListener('blur', (e) => {
-        const rawValue = parseFormattedNumber(e.target.value);
+        const rawValue = parseFormattedNumber(e.target.value) || 0;
         e.target.dataset.rawValue = rawValue.toFixed(2);
         e.target.value = formatNumberForDisplay(rawValue);
-        calculateAll();
+        fullRecalculateAndRender();
         updateRevenueInputWidth(); // Atualiza a largura também no blur
     });
 
-    // Adiciona sanitização para as tabelas via delegação de evento
-    document.getElementById('fixed-cost-table').addEventListener('input', (e) => { if (e.target.classList.contains('formatted-number-input')) sanitizeNumericOnInput(e); });
-    document.getElementById('variable-cost-table').addEventListener('input', (e) => { if (e.target.classList.contains('formatted-number-input')) sanitizeNumericOnInput(e); });
-
+    function fullRecalculateAndRender() {
+        calculateAll();
+    }
 
     // --- INICIALIZAÇÃO ---
     loadState();

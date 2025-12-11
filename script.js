@@ -42,16 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // O custo do produto continua sendo do salão para o cálculo do lucro.
             effectiveProductCostForProfit = realProductCost;
         } else if (productOrigin === 'professional') {
-            effectiveProductCostForProfit = 0; // Custo para o lucro do salão é zero.
+            effectiveProductCostForProfit = 0; // Custo para o lucro do salão é zero. (Product cost is borne by professional)
         } else if (productOrigin === 'client') {
-            // Para "Produto do Cliente", o custo do produto abate a base da comissão e do lucro.
+            // Para "Produto do Cliente", o custo do produto abate a base da comissão.
+            // O custo do produto também não é considerado um custo para o cálculo do lucro do salão,
+            // já que o cliente pagou por ele.
             commissionBase = service.currentPrice - realProductCost;
+            effectiveProductCostForProfit = 0;
         }
-        
-        // Ajusta o imposto se a Lei do Salão Parceiro for aplicada
-        const effectiveTax = params.isSalaoParceiro // Agora usa o parâmetro global
-            ? params.tax * (1 - service.commission)
-            : params.tax;
         
         // Coluna E: Valor Comissão - Agora considera se a taxa é percentual ou fixa
         const adminFeeValue = service.adminFeeType === 'real'
@@ -60,8 +58,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalCommissionBase = commissionBase - adminFeeValue;
         const commissionValue = finalCommissionBase * service.commission;
         
+        // Calcula o valor do imposto com base na Lei do Salão Parceiro e no valor da comissão
+        let taxValue;
+        if (params.isSalaoParceiro) {
+            // O imposto é aplicado sobre a receita *após* deduzir o valor da comissão.
+            // Isso se aplica a todas as origens de produto quando a Lei do Salão Parceiro está ativa.
+            taxValue = (service.currentPrice - commissionValue) * params.tax;
+        } else {
+            // O imposto é aplicado sobre o preço total atual.
+            taxValue = service.currentPrice * params.tax;
+        }
+
         // Coluna H: Lucro Financeiro = Preço - Comissão - Custo Produto - Custos Fixos - Impostos
-        const otherCostsValue = service.currentPrice * (params.marketing + params.cardFee + params.fixedCost + effectiveTax);
+        const marketingValue = service.currentPrice * params.marketing;
+        const cardFeeValue = service.currentPrice * params.cardFee;
+        const fixedCostsValue = service.currentPrice * params.fixedCost;
+        const otherCostsValue = marketingValue + cardFeeValue + fixedCostsValue + taxValue;
+
         const financialProfit = profitBase - commissionValue - effectiveProductCostForProfit - otherCostsValue;
         
         // Coluna I: Lucro % = Lucro Financeiro / Preço Total
@@ -73,26 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const costsWithoutTax = params.marketing + params.cardFee + params.fixedCost;
         const effectiveCommissionPercent = service.adminFeeType === 'real' ? service.commission : service.commission * (1 - (service.adminFee || 0));
         const adminFeeFixed = service.adminFeeType === 'real' ? (service.adminFee || 0) : 0;
+
+        // Porcentagem efetiva do imposto para o cálculo do preço sugerido
+        // Se a Lei do Salão Parceiro estiver ativa, o imposto é aplicado sobre (P - ValorComissão).
+        // Se ValorComissão = P * effectiveCommissionPercent, então Imposto = params.tax * (P - P * effectiveCommissionPercent)
+        // Assim, a taxa de imposto efetiva sobre P é params.tax * (1 - effectiveCommissionPercent)
+        const effectiveTaxForSuggestedPrice = params.isSalaoParceiro ? params.tax * (1 - effectiveCommissionPercent) : params.tax;
+
         let suggestedPrice = 0;
 
         if (productOrigin === 'client') {
             // Lógica especial para "Produto do Cliente"
             // P = (CustoProduto * (1 - ComissãoEfetiva)) / (1 - CustosTotais% - LucroDesejado% - ComissãoEfetiva)
             const numerator = (realProductCost * (1 - effectiveCommissionPercent)) + adminFeeFixed;
-            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - effectiveCommissionPercent;
+            const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
             suggestedPrice = denominator > 0 ? numerator / denominator : 0;
         } else {
             // Lógica padrão para "Produto do Salão" e "Produto do Profissional"
-            const denominator = 1 - costsWithoutTax - effectiveTax - params.desiredProfit - effectiveCommissionPercent;
+            const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
             suggestedPrice = denominator > 0 ? ((realProductCost || 0) + adminFeeFixed) / denominator : 0;
         }
-
         return {
             ...service,
             commissionValue,
             financialProfit,
             profitPercentage,
             suggestedPrice,
+            taxValue // Inclui o valor do imposto calculado
         };
     }
 
@@ -413,13 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('breakdown-title').innerHTML = `<i class="icon">🧩</i> Detalhamento do preço de ${service.name}`;        
 
         const chartSavingsInfoEl = document.getElementById('chart-savings-info');
-        const effectiveTax = appState.parameters.isSalaoParceiro
-            ? appState.parameters.tax * (1 - service.commission)
-            : appState.parameters.tax;
-
-        // CORREÇÃO: Todos os custos percentuais (exceto comissão, que já vem calculada)
-        // devem usar o preço cheio como base, conforme a nova regra.
-        const taxValue = service.currentPrice * effectiveTax;
+        const taxValue = service.taxValue; // Usa o taxValue pré-calculado do objeto service
         const marketingValue = service.currentPrice * appState.parameters.marketing;
         const cardFeeValue = service.currentPrice * appState.parameters.cardFee;
         const fixedCostsValue = service.currentPrice * appState.parameters.fixedCost;
@@ -435,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chartSavingsInfoEl.innerHTML = ''; // Limpa o container de economia por padrão
 
         if (appState.parameters.isSalaoParceiro) {
-            const taxWithoutLaw = service.currentPrice * appState.parameters.tax;
+            const taxWithoutLaw = service.currentPrice * appState.parameters.tax; // Imposto total se a lei não fosse aplicada
             const savings = taxWithoutLaw - taxValue; // A economia é a diferença
             const percent = service.currentPrice > 0 ? (taxValue / service.currentPrice) * 100 : 0;
 
@@ -657,9 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Dica sobre a Lei do Salão Parceiro (específica para o serviço)
-        const priceBaseForTax = service.productOrigin === 'client' ? service.currentPrice - service.productCost : service.currentPrice;
-        const taxSavingValue = priceBaseForTax * appState.parameters.tax * service.commission;
-        const totalTaxWithoutLaw = priceBaseForTax * appState.parameters.tax;
+        const totalTaxWithoutLaw = service.currentPrice * appState.parameters.tax; // Imposto total se a lei não fosse aplicada
+        const taxSavingValue = totalTaxWithoutLaw - service.taxValue; // A economia é a diferença
         const savingPercentage = totalTaxWithoutLaw > 0 ? (taxSavingValue / totalTaxWithoutLaw) * 100 : 0;
 
         if (taxSavingValue > 0) { // Só mostra a dica se houver comissão

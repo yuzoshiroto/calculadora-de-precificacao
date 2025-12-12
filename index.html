@@ -98,6 +98,26 @@
                              <div class="form-field" id="new-service-cost-container">
                                 <input type="text" id="new-service-cost" class="formatted-number-input" placeholder="Ex: 2,00" data-raw-value="0">
                              </div>
+                             <div class="form-field" id="new-service-professional-cost-container" style="display: none;">
+                                <div class="professional-cost-row">
+                                    <input type="text" class="new-professional-cost-name" placeholder="Concorrente 1">
+                                    <div class="input-with-prefix">
+                                        <span>R$</span><input type="text" class="new-professional-cost-value formatted-number-input" placeholder="Valor">
+                                    </div>
+                                </div>
+                                <div class="professional-cost-row">
+                                    <input type="text" class="new-professional-cost-name" placeholder="Concorrente 2">
+                                    <div class="input-with-prefix">
+                                        <span>R$</span><input type="text" class="new-professional-cost-value formatted-number-input" placeholder="Valor">
+                                    </div>
+                                </div>
+                                <div class="professional-cost-row">
+                                    <input type="text" class="new-professional-cost-name" placeholder="Concorrente 3">
+                                    <div class="input-with-prefix">
+                                        <span>R$</span><input type="text" class="new-professional-cost-value formatted-number-input" placeholder="Valor">
+                                    </div>
+                                </div>
+                             </div>
                              <div class="form-field">
                                 <label for="new-service-commission">Comissão (%)</label>
                                 <input type="number" id="new-service-commission" placeholder="Ex: 50" step="0.01" min="0">
@@ -361,6 +381,26 @@
                 <a href="#" id="modal-calculator-btn" class="side-btn">
                     <i class="fas fa-calculator"></i> Calculadora
                 </a>
+            </div>
+            <div id="modal-professional-cost-container" style="display: none;">
+                <div class="professional-cost-row">
+                    <input type="text" class="modal-professional-cost-name" placeholder="Concorrente 1">
+                    <div class="input-with-prefix">
+                        <span>R$</span><input type="text" class="modal-professional-cost-value formatted-number-input" placeholder="Valor">
+                    </div>
+                </div>
+                <div class="professional-cost-row">
+                    <input type="text" class="modal-professional-cost-name" placeholder="Concorrente 2">
+                    <div class="input-with-prefix">
+                        <span>R$</span><input type="text" class="modal-professional-cost-value formatted-number-input" placeholder="Valor">
+                    </div>
+                </div>
+                <div class="professional-cost-row">
+                    <input type="text" class="modal-professional-cost-name" placeholder="Concorrente 3">
+                    <div class="input-with-prefix">
+                        <span>R$</span><input type="text" class="modal-professional-cost-value formatted-number-input" placeholder="Valor">
+                    </div>
+                </div>
             </div>
 
             <div class="modal-actions">

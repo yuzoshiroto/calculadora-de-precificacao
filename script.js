@@ -92,19 +92,39 @@ document.addEventListener('DOMContentLoaded', () => {
         // Se ValorComissão = P * effectiveCommissionPercent, então Imposto = params.tax * (P - P * effectiveCommissionPercent)
         // Assim, a taxa de imposto efetiva sobre P é params.tax * (1 - effectiveCommissionPercent)
         const effectiveTaxForSuggestedPrice = params.isSalaoParceiro ? params.tax * (1 - effectiveCommissionPercent) : params.tax;
-
+        
         let suggestedPrice = 0;
-
-        if (productOrigin === 'client') {
-            // Lógica especial para "Produto do Cliente"
-            // P = (CustoProduto * (1 - ComissãoEfetiva)) / (1 - CustosTotais% - LucroDesejado% - ComissãoEfetiva)
-            const numerator = (realProductCost * (1 - effectiveCommissionPercent)) + adminFeeFixed;
-            const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
-            suggestedPrice = denominator > 0 ? numerator / denominator : 0;
+        
+        if (productOrigin === 'professional') {
+            // NOVA LÓGICA PARA PRODUTO DO PROFISSIONAL
+            const positioningPreset = document.querySelector('input[name="positioning_preset"]:checked')?.value || 'average';
+            const professionalCosts = service.professionalCosts || [];
+            const validValues = professionalCosts.map(pc => pc.value).filter(v => v > 0);
+            
+            if (validValues.length > 0) {
+                const averageCost = validValues.reduce((sum, v) => sum + v, 0) / validValues.length;
+                
+                if (positioningPreset === 'above_average') {
+                    suggestedPrice = averageCost * 1.10;
+                } else if (positioningPreset === 'below_average') {
+                    suggestedPrice = averageCost * 0.90;
+                } else { // 'average'
+                    suggestedPrice = averageCost;
+                }
+            }
         } else {
-            // Lógica padrão para "Produto do Salão" e "Produto do Profissional"
-            const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
-            suggestedPrice = denominator > 0 ? ((realProductCost || 0) + adminFeeFixed) / denominator : 0;
+            // LÓGICA ANTIGA PARA PRODUTO DO SALÃO E CLIENTE
+            if (productOrigin === 'client') {
+                // Lógica especial para "Produto do Cliente"
+                // P = (CustoProduto * (1 - ComissãoEfetiva)) / (1 - CustosTotais% - LucroDesejado% - ComissãoEfetiva)
+                const numerator = (realProductCost * (1 - effectiveCommissionPercent)) + adminFeeFixed;
+                const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
+                suggestedPrice = denominator > 0 ? numerator / denominator : 0;
+            } else { // 'salon'
+                // Lógica padrão para "Produto do Salão"
+                const denominator = 1 - costsWithoutTax - effectiveTaxForSuggestedPrice - params.desiredProfit - effectiveCommissionPercent;
+                suggestedPrice = denominator > 0 ? ((realProductCost || 0) + adminFeeFixed) / denominator : 0;
+            }
         }
         return {
             ...service,
@@ -267,12 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const productOriginLabel = productOriginMap[service.productOrigin] || '';
             
-            let displayedProductCost = formatCurrency(service.productCost);
-            let productCostClass = '';
+            let displayedProductCost = formatCurrency(service.productCost); // Valor padrão
             if (service.productOrigin === 'professional') {
-                productCostClass = 'faded-product-cost'; // Aplica a classe para o estilo "apagado"
+                displayedProductCost = '-'; // Exibe "-" se for produto do profissional
             }
-            const productCostCellContent = `<span class="${productCostClass}">${displayedProductCost}</span> <span class="product-origin-label">${productOriginLabel ? `(${productOriginLabel})` : ''}</span>`;
+            const productCostCellContent = `<span>${displayedProductCost}</span> <span class="product-origin-label">${productOriginLabel ? `(${productOriginLabel})` : ''}</span>`;
 
             // Lógica para o texto do Preço Sugerido
             let suggestedPriceText;
@@ -305,12 +324,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Renderiza campos de input ou texto simples dependendo do modo de edição
             if (isInEditMode) {
+                // Lógica para a célula de Custo de Produto no modo de edição
+                let productCostEditCellContent;
+                const isCurrentServiceUnviable = service.suggestedPrice === 0 && service.productCost > 0;
+                if (service.productOrigin === 'professional' && !isCurrentServiceUnviable) {
+                    productCostEditCellContent = `<td>- <span class="product-origin-label">(${productOriginLabel})</span></td>`; // Exibe "-" e a origem do produto
+                } else {
+                    productCostEditCellContent = `<td><div class="input-with-prefix"><span>R$</span><input type="text" class="product-cost-input formatted-number-input" value="${formatNumberForDisplay(service.productCost)}" data-raw-value="${service.productCost.toFixed(2)}"></div></td>`;
+                }
+
                 row.innerHTML = /*html*/`
                     <td>${service.name}</td>
                     <td>
                         <div class="input-with-prefix"><span>R$</span><input type="text" class="current-price-input formatted-number-input" value="${formatNumberForDisplay(service.currentPrice)}" data-raw-value="${service.currentPrice.toFixed(2)}"></div>
                     </td>
-                    <td><div class="input-with-prefix"><span>R$</span><input type="text" class="product-cost-input formatted-number-input" value="${formatNumberForDisplay(service.productCost)}" data-raw-value="${service.productCost.toFixed(2)}"></div></td>
+                    ${productCostEditCellContent}
                     <td><div class="input-with-symbol"><input type="number" class="commission-input" value="${formatPercentageForInput(service.commission)}" step="0.01"><span>%</span></div></td>
                     <td>
                         <div class="admin-fee-edit-container">
@@ -983,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminFeeInput = document.getElementById('new-service-admin-fee');
         const productOriginInput = document.getElementById('new-service-product-origin');
         const costInput = document.getElementById('new-service-cost');
+        const professionalCostRows = document.querySelectorAll('#new-service-professional-cost-container .professional-cost-row');
 
         const name = nameInput.value.trim();
         const inputValue = parseFormattedNumber(valueInput.value);
@@ -990,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productOrigin = productOriginInput.value;
         // O valor do custo deve ser sempre salvo, independentemente da origem.
         // A lógica de cálculo (calculateServiceMetrics) já trata o que fazer com esse valor.
-        const cost = parseFormattedNumber(costInput.value);
+        let cost = parseFormattedNumber(costInput.value);
 
         const adminFeeType = adminFeeInput.dataset.unitType;
         let adminFee = parseFormattedNumber(adminFeeInput.value);
@@ -998,7 +1027,18 @@ document.addEventListener('DOMContentLoaded', () => {
             adminFee = adminFee / 100;
         }
 
-        if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission) && !isNaN(cost)) {
+        let professionalCosts = [];
+        if (productOrigin === 'professional') {
+            cost = 0; // Zera o custo principal
+            professionalCostRows.forEach(row => {
+                const name = row.querySelector('.new-professional-cost-name').value.trim();
+                const value = parseFormattedNumber(row.querySelector('.new-professional-cost-value').value);
+                if (name || value > 0) {
+                    professionalCosts.push({ name, value });
+                }
+            });
+        }
+        if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission)) {
             const newService = {
                 id: crypto.randomUUID(), // Adiciona um ID único
                 name,
@@ -1008,6 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminFeeType,
                 adminFee,
                 productOrigin,
+                professionalCosts: productOrigin === 'professional' ? professionalCosts : [],
             };
             appState.services.push(newService);
 
@@ -1021,7 +1062,13 @@ document.addEventListener('DOMContentLoaded', () => {
             costInput.value = '';
             costInput.dataset.rawValue = '0';
             productOriginInput.value = '';
-            document.getElementById('new-service-cost-container').style.display = 'block';
+            // Limpa e esconde os campos de custo profissional
+            professionalCostRows.forEach(row => {
+                row.querySelector('.new-professional-cost-name').value = '';
+                row.querySelector('.new-professional-cost-value').value = '';
+            });
+            document.getElementById('new-service-cost-container').style.display = 'none';
+            document.getElementById('new-service-professional-cost-container').style.display = 'none';
             fullRecalculateAndRender();
         } else {
             alert('Por favor, preencha todos os campos do novo serviço corretamente.');
@@ -1038,21 +1085,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const originSelect = document.getElementById('modal-product-origin');
         const costInput = document.getElementById('modal-product-cost');
         const calculatorBtn = document.getElementById('modal-calculator-btn');
+        // Containers
         const costContainer = document.getElementById('modal-cost-container');
+        const professionalCostContainer = document.getElementById('modal-professional-cost-container');
 
         // Armazena o ID do serviço no modal para referência
         modal.dataset.serviceId = serviceId;
 
         // Preenche os campos com os dados atuais do serviço
         originSelect.value = service.productOrigin || 'salon';
+
+        // Limpa e preenche os campos de custo padrão
         costInput.value = formatNumberForDisplay(service.productCost);
         costInput.dataset.rawValue = service.productCost.toFixed(2);
+
+        // Limpa e preenche os campos de custo profissional
+        const professionalCostRows = professionalCostContainer.querySelectorAll('.professional-cost-row');
+        professionalCostRows.forEach((row, index) => {
+            const nameInput = row.querySelector('.modal-professional-cost-name');
+            const valueInput = row.querySelector('.modal-professional-cost-value');
+            const pCost = service.professionalCosts?.[index];
+            nameInput.value = pCost?.name || '';
+            valueInput.value = pCost?.value > 0 ? formatNumberForDisplay(pCost.value) : '';
+        });
 
         // Define o link do botão da calculadora, passando o nome do serviço na URL
         calculatorBtn.href = `product_cost_calculator.html?service=${encodeURIComponent(service.name)}`;
 
-        // Controla a visibilidade do campo de valor
-        costContainer.style.display = (originSelect.value === '') ? 'none' : 'block';
+        // Controla a visibilidade dos containers de custo
+        // A visibilidade do botão da calculadora está atrelada ao container de custo padrão
+        const selectedOrigin = originSelect.value;
+        const showStandardCost = selectedOrigin === 'salon' || selectedOrigin === 'client';
+        costContainer.style.display = showStandardCost ? 'flex' : 'none';
+        professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
 
         // Exibe o modal
         modal.style.display = 'flex';
@@ -1072,11 +1137,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!service) return;
 
         service.productOrigin = document.getElementById('modal-product-origin').value;
-        // O valor do custo do produto deve ser sempre salvo, independentemente da origem.
-        // A lógica de cálculo (calculateServiceMetrics) já sabe como tratar esse valor
-        // (ex: zerar o custo para o lucro do salão se a origem for 'professional').
-        service.productCost = parseFormattedNumber(document.getElementById('modal-product-cost').value);
 
+        if (service.productOrigin === 'professional') {
+            service.productCost = 0; // Zera o custo principal
+            service.professionalCosts = [];
+            const professionalCostRows = document.querySelectorAll('#modal-professional-cost-container .professional-cost-row');
+            professionalCostRows.forEach(row => {
+                const name = row.querySelector('.modal-professional-cost-name').value.trim();
+                const value = parseFormattedNumber(row.querySelector('.modal-professional-cost-value').value);
+                if (name || value > 0) {
+                    service.professionalCosts.push({ name, value });
+                }
+            });
+        } else {
+            // O valor do custo do produto deve ser sempre salvo, independentemente da origem.
+            // A lógica de cálculo (calculateServiceMetrics) já sabe como tratar esse valor
+            service.productCost = parseFormattedNumber(document.getElementById('modal-product-cost').value);
+            service.professionalCosts = []; // Limpa os custos de concorrentes
+        }
+        
         closeProductCostModal();
         fullRecalculateAndRender(); // Recalcula e re-renderiza tudo com os novos valores
     }
@@ -1330,7 +1409,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('thead').addEventListener('click', handleSort);
         document.getElementById('new-service-product-origin').addEventListener('change', (e) => {
             const costContainer = document.getElementById('new-service-cost-container');
-            costContainer.style.display = e.target.value === '' ? 'none' : 'block';
+            const professionalCostContainer = document.getElementById('new-service-professional-cost-container');
+            const selectedOrigin = e.target.value;
+
+            costContainer.style.display = (selectedOrigin === 'salon' || selectedOrigin === 'client') ? 'block' : 'none';
+            professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
         });
 
         // Adiciona sanitização no input para campos numéricos no formulário de adicionar serviço
@@ -1368,7 +1451,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('modal-product-origin').addEventListener('change', (e) => {
             const costContainer = document.getElementById('modal-cost-container');
-            costContainer.style.display = e.target.value === '' ? 'none' : 'block';
+            const professionalCostContainer = document.getElementById('modal-professional-cost-container');
+            const calculatorBtn = document.getElementById('modal-calculator-btn'); // Pega o botão da calculadora
+            const selectedOrigin = e.target.value;
+
+            const showStandardCost = selectedOrigin === 'salon' || selectedOrigin === 'client';
+            costContainer.style.display = showStandardCost ? 'flex' : 'none';
+            calculatorBtn.style.display = showStandardCost ? 'flex' : 'none'; // Controla a visibilidade do botão
+            professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
         });
         // Adiciona sanitização no input para o campo de custo no modal
         document.getElementById('modal-product-cost').addEventListener('input', sanitizeNumericOnInput);
@@ -1391,6 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Garante que o campo de custo comece oculto, pois a opção padrão é "Escolha uma opção..."
         document.getElementById('new-service-cost-container').style.display = 'none';
+        document.getElementById('new-service-professional-cost-container').style.display = 'none';
 
         if (appState.services.length > 0) {
             updateDashboard(appState.services[0].id);

@@ -1246,6 +1246,26 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
     }
 
+    function handleProductPresetChange(event) {
+        const presetValue = event.target.value;
+        const positioningSection = document.getElementById('positioning-section');
+        const newServiceProductOriginSelect = document.getElementById('new-service-product-origin');
+
+        // Pré-seleciona o dropdown no formulário "Adicionar Serviços"
+        if (newServiceProductOriginSelect) {
+            newServiceProductOriginSelect.value = presetValue;
+            // Dispara o evento 'change' para que qualquer lógica associada (como mostrar/ocultar o campo de custo) seja executada
+            newServiceProductOriginSelect.dispatchEvent(new Event('change'));
+        }
+
+        // Mostra ou esconde a seção "Posicionamento"
+        if (presetValue === 'professional') {
+            positioningSection.style.display = 'block';
+        } else {
+            positioningSection.style.display = 'none';
+        }
+    }
+
     function init() {
         appState = loadState();
         appState.sort = appState.sort || { ...DEFAULT_SORT };
@@ -1361,6 +1381,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tooltip.addEventListener('mouseenter', handleTooltipPosition);
             tooltip.addEventListener('mouseover', handleTooltipPosition); // Garante o reposicionamento
         });
+
+        // Adiciona listener para o novo bloco de pré-definição
+        document.getElementById('product-origin-preset').addEventListener('change', handleProductPresetChange);
+
+
         
         fullRecalculateAndRender();
 

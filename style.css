@@ -400,6 +400,60 @@ input[type="number"]::-webkit-inner-spin-button {
     border-top: 1px solid var(--border-color);
 }
 
+/* Altera a cor do subtítulo "Posicionamento" na seção de pré-definição para cinza */
+#positioning-section .param-subtitle {
+    color: var(--text-secondary);
+}
+
+/* Ajuste de posicionamento vertical para os radio buttons de posicionamento no formulário de serviço */
+#new-service-positioning-container input[type="radio"] {
+    position: relative;
+    top: 3px;
+}
+
+/* Reduz o espaçamento entre as opções de posicionamento no formulário de serviço */
+#new-service-positioning-container .preset-options {
+    gap: 0.2rem; /* O valor padrão é 0.8rem */
+    margin-top: 0.6rem; /* Adiciona espaço acima das opções */
+}
+
+/* Estilo para o separador condicional no formulário de serviço */
+.form-separator {
+    display: none; /* Oculto por padrão */
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.8rem 0;
+}
+
+/* Adiciona espaço acima do campo de posicionamento no modal */
+#modal-positioning-container {
+    margin-top: 1.5rem;
+}
+
+/* Aumenta o tamanho geral do campo de posicionamento no modal */
+#modal-positioning-container > label {
+    font-size: 0.95rem; /* Aumenta o título */
+}
+
+#modal-positioning-container .radio-label {
+    font-size: 1rem; /* Aumenta o texto das opções */
+}
+
+/* Estilos para o campo de posicionamento no MODAL, espelhando o do formulário principal */
+#modal-positioning-container .preset-options {
+    gap: 0.5rem; /* Aumenta o espaçamento vertical */
+    margin-top: 0.8rem;
+}
+
+#modal-positioning-container input[type="radio"] {
+    position: relative;
+    top: 3px;
+    width: 18px; /* Aumenta o tamanho do botão */
+    height: 18px; /* Aumenta o tamanho do botão */
+    width: auto; /* Garante que não herde 100% de largura */
+}
+
+
 
 #add-service-btn {
     width: 100%;
@@ -2304,6 +2358,31 @@ tbody tr.drag-over {
         height: 12px;
     }
 
+    /* Ajuste fino do espaçamento das opções de posicionamento para a resolução 1440px */
+    #new-service-positioning-container .preset-options {
+        gap: 0rem;
+        margin-top: 0; /* Remove o espaço extra em telas menores */
+    }
+
+    /* Ajuste fino do posicionamento dos radio buttons de serviço para a resolução 1440px */
+    #new-service-positioning-container input[type="radio"] {
+        width: 11px;
+        height: 11px;
+    }
+
+    /* Ajustes para o campo de posicionamento no MODAL em 1440px */
+    #modal-positioning-container .preset-options {
+        gap: 0rem;
+        margin-top: 0;
+    }
+
+    #modal-positioning-container input[type="radio"] {
+        top: 4px;
+        width: 11px;
+        height: 11px;
+    }
+
+
     .param-checkbox-field input[type="checkbox"] {
         width: 11px; /* 16px - 20% */
         height: 11px; /* 16px - 20% */
@@ -2609,17 +2688,42 @@ tbody tr.drag-over {
 
     /* Reduz a largura do modal "Configurar Custo de Produto" */
     .modal-content {
-        max-width: 380px; /* Valor original: 470px */
+        max-width: 330px; /* Valor original: 470px, ajustado de 380px */
     }
 
-    /* Restaura o tamanho da fonte do "R$" no modal de custo do profissional */
+    /* Aumenta o tamanho de fontes específicas no modal para melhor legibilidade */
+    .modal-content .modal-subtitle {
+        font-size: 1.1rem;
+    }
+    .modal-content .form-field > label {
+        font-size: 1.05rem;
+    }
+    #modal-positioning-container > label {
+        font-size: 1.05rem;
+    }
+
+
+    /* Reduz o tamanho dos campos de formulário no modal */
+    .modal-content select,
+    .modal-content input[type="text"] {
+        padding: 8px 10px;
+        font-size: 1rem;
+    }
+
+    .modal-content select {
+        padding-right: 2rem; /* Ajusta o espaço para a seta do dropdown */
+    }
+
+    /* Reduz o tamanho da fonte do "R$" no modal de custo do profissional */
     #modal-professional-cost-container .input-with-prefix span {
-        font-size: 1.3rem; /* Garante que o "R$" não seja reduzido */
+        font-size: 1.1rem; /* Reduz o tamanho do "R$" */
     }
 
-    /* Aumenta a fonte do botão "Calculadora" no modal para igualar aos outros */
-    #modal-calculator-btn {
-        font-size: 1.1rem; /* Padrão dos outros botões do modal */
+    /* Reduz o tamanho dos botões de ação e do botão da calculadora no modal */
+    .modal-actions button,
+    #modal-calculator-btn{
+        padding: 8px 15px;
+        font-size: 1rem;
     }
 
     /* Reduz a largura dos cards de métricas abaixo da tabela */

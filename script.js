@@ -10,7 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
             fixedCost: 0.30, // C14
             isSalaoParceiro: false // NOVO: Parâmetro global para Lei do Salão Parceiro
         },
-        services: []
+        services: [],
+        // NOVO: Armazena o estado das pré-definições
+        presets: {
+            productOrigin: null,
+            positioning: 'average'
+        }
     };
 
     const DEFAULT_SORT = {
@@ -97,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (productOrigin === 'professional') {
             // NOVA LÓGICA PARA PRODUTO DO PROFISSIONAL
-            const positioningPreset = document.querySelector('input[name="positioning_preset"]:checked')?.value || 'average';
+            // CORREÇÃO: Usa o valor de posicionamento salvo no próprio serviço, em vez de ler do DOM.
+            const positioningPreset = service.positioning || 'average';
             const professionalCosts = service.professionalCosts || [];
             const validValues = professionalCosts.map(pc => pc.value).filter(v => v > 0);
             
@@ -1012,6 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productOriginInput = document.getElementById('new-service-product-origin');
         const costInput = document.getElementById('new-service-cost');
         const professionalCostRows = document.querySelectorAll('#new-service-professional-cost-container .professional-cost-row');
+        const positioningPresetInput = document.querySelector('input[name="new_service_positioning_preset"]:checked');
 
         const name = nameInput.value.trim();
         const inputValue = parseFormattedNumber(valueInput.value);
@@ -1038,6 +1045,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        // CORREÇÃO: Determina qual valor de posicionamento usar.
+        let servicePositioning = null;
+        if (productOrigin === 'professional') {
+            const newServicePositioningContainer = document.getElementById('new-service-positioning-container');
+            if (newServicePositioningContainer && newServicePositioningContainer.style.display !== 'none') {
+                // Se o campo de posicionamento do formulário estiver visível, ele tem prioridade.
+                servicePositioning = document.querySelector('input[name="new_service_positioning_preset"]:checked')?.value || 'average';
+            } else {
+                // Caso contrário, busca o valor da pré-definição.
+                servicePositioning = document.querySelector('input[name="positioning_preset"]:checked')?.value || 'average';
+            }
+        }
         if (name && productOrigin && !isNaN(inputValue) && !isNaN(commission)) {
             const newService = {
                 id: crypto.randomUUID(), // Adiciona um ID único
@@ -1049,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminFee,
                 productOrigin,
                 professionalCosts: productOrigin === 'professional' ? professionalCosts : [],
+                positioning: servicePositioning, // Salva o posicionamento
             };
             appState.services.push(newService);
 
@@ -1061,19 +1082,36 @@ document.addEventListener('DOMContentLoaded', () => {
             adminFeeInput.dataset.rawValue = '0';
             costInput.value = '';
             costInput.dataset.rawValue = '0';
-            productOriginInput.value = '';
+            
+            // CORREÇÃO: Mantém a pré-seleção do custo de produto após adicionar um serviço.
+            const presetValue = document.querySelector('input[name="product_origin_preset"]:checked')?.value;
+            productOriginInput.value = presetValue || ''; // Se houver um preset, usa-o. Senão, limpa.
+            productOriginInput.dispatchEvent(new Event('change')); // Dispara o evento para atualizar a UI dos campos de custo.
+
             // Limpa e esconde os campos de custo profissional
             professionalCostRows.forEach(row => {
                 row.querySelector('.new-professional-cost-name').value = '';
-                row.querySelector('.new-professional-cost-value').value = '';
+                const valueInput = row.querySelector('.new-professional-cost-value');
+                valueInput.value = '';
+                valueInput.dataset.rawValue = '0'; // CORREÇÃO: Reseta também o valor bruto.
             });
-            document.getElementById('new-service-cost-container').style.display = 'none';
-            document.getElementById('new-service-professional-cost-container').style.display = 'none';
             fullRecalculateAndRender();
         } else {
             alert('Por favor, preencha todos os campos do novo serviço corretamente.');
         }
     }
+
+    // Mostra o campo de posicionamento no modal APENAS se "Produto do Profissional" estiver selecionado DENTRO do modal.
+    function toggleModalPositioningField() {
+        const productOriginSelect = document.getElementById('modal-product-origin');
+        const positioningContainer = document.getElementById('modal-positioning-container');
+        if (!productOriginSelect || !positioningContainer) return;
+        const show = productOriginSelect.value === 'professional';
+        positioningContainer.style.display = show ? 'block' : 'none';
+    }
+
+
+
 
     // --- LÓGICA DO MODAL DE CUSTO DE PRODUTO ---
 
@@ -1088,6 +1126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Containers
         const costContainer = document.getElementById('modal-cost-container');
         const professionalCostContainer = document.getElementById('modal-professional-cost-container');
+        const positioningContainer = document.getElementById('modal-positioning-container');
 
         // Armazena o ID do serviço no modal para referência
         modal.dataset.serviceId = serviceId;
@@ -1109,6 +1148,13 @@ document.addEventListener('DOMContentLoaded', () => {
             valueInput.value = pCost?.value > 0 ? formatNumberForDisplay(pCost.value) : '';
         });
 
+        // Preenche o campo de posicionamento
+        const positioningValue = service.positioning || 'average';
+        const positioningRadio = positioningContainer.querySelector(`input[name="modal_positioning_preset"][value="${positioningValue}"]`);
+        if (positioningRadio) {
+            positioningRadio.checked = true;
+        }
+
         // Define o link do botão da calculadora, passando o nome do serviço na URL
         calculatorBtn.href = `product_cost_calculator.html?service=${encodeURIComponent(service.name)}`;
 
@@ -1118,6 +1164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const showStandardCost = selectedOrigin === 'salon' || selectedOrigin === 'client';
         costContainer.style.display = showStandardCost ? 'flex' : 'none';
         professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
+
+        // Controla a visibilidade do campo de posicionamento
+        toggleModalPositioningField();
 
         // Exibe o modal
         modal.style.display = 'flex';
@@ -1137,6 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!service) return;
 
         service.productOrigin = document.getElementById('modal-product-origin').value;
+        let newPositioning = null;
 
         if (service.productOrigin === 'professional') {
             service.productCost = 0; // Zera o custo principal
@@ -1149,12 +1199,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     service.professionalCosts.push({ name, value });
                 }
             });
+            // Salva o posicionamento se o campo estiver visível
+            const positioningContainer = document.getElementById('modal-positioning-container');
+            if (positioningContainer.style.display !== 'none') {
+                const positioningInput = document.querySelector('input[name="modal_positioning_preset"]:checked');
+                newPositioning = positioningInput ? positioningInput.value : 'average';
+            }
         } else {
             // O valor do custo do produto deve ser sempre salvo, independentemente da origem.
             // A lógica de cálculo (calculateServiceMetrics) já sabe como tratar esse valor
             service.productCost = parseFormattedNumber(document.getElementById('modal-product-cost').value);
             service.professionalCosts = []; // Limpa os custos de concorrentes
         }
+
+        service.positioning = newPositioning;
         
         closeProductCostModal();
         fullRecalculateAndRender(); // Recalcula e re-renderiza tudo com os novos valores
@@ -1340,14 +1398,63 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mostra ou esconde a seção "Posicionamento"
         if (presetValue === 'professional') {
             positioningSection.style.display = 'block';
+
+            // Salva o estado da pré-definição de custo de produto
+            appState.presets.productOrigin = presetValue;
+            saveState();
+
+            // Esconde o posicionamento do formulário de serviço, pois a pré-definição está ativa
+            const newServicePositioningContainer = document.getElementById('new-service-positioning-container');
+            if (newServicePositioningContainer) {
+                newServicePositioningContainer.style.display = 'none';
+            }
         } else {
             positioningSection.style.display = 'none';
+
+            // Salva o estado da pré-definição de custo de produto
+            appState.presets.productOrigin = presetValue;
+            saveState();
+        }
+    }
+
+    function toggleServicePositioningField() {
+        const productOriginSelect = document.getElementById('new-service-product-origin');
+        const presetProfessionalRadio = document.querySelector('input[name="product_origin_preset"][value="professional"]');
+        const positioningContainer = document.getElementById('new-service-positioning-container');
+
+        // Seleciona o novo separador
+        const separator = document.getElementById('separator-before-service-name');
+
+        const show = productOriginSelect.value === 'professional' && !presetProfessionalRadio.checked;
+        positioningContainer.style.display = show ? 'block' : 'none';
+
+        // Mostra ou esconde o separador com base na mesma condição
+        if (separator) {
+            separator.style.display = show ? 'block' : 'none';
         }
     }
 
     function init() {
         appState = loadState();
         appState.sort = appState.sort || { ...DEFAULT_SORT };
+        // Garante que a propriedade de presets exista para estados salvos anteriormente
+        appState.presets = appState.presets || { productOrigin: null, positioning: 'average' };
+
+        // Restaura o estado das pré-definições ao carregar a página
+        if (appState.presets.productOrigin) {
+            const presetRadio = document.querySelector(`input[name="product_origin_preset"][value="${appState.presets.productOrigin}"]`);
+            if (presetRadio) {
+                presetRadio.checked = true;
+                // CORREÇÃO: Chama a função diretamente para garantir que a UI seja atualizada
+                // antes que outros scripts dependam dela.
+                handleProductPresetChange({ target: presetRadio });
+
+            }
+        }
+        if (appState.presets.positioning) {
+            const positioningRadio = document.querySelector(`input[name="positioning_preset"][value="${appState.presets.positioning}"]`);
+            if (positioningRadio) positioningRadio.checked = true;
+        }
 
         renderParameters();
         
@@ -1411,10 +1518,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const costContainer = document.getElementById('new-service-cost-container');
             const professionalCostContainer = document.getElementById('new-service-professional-cost-container');
             const selectedOrigin = e.target.value;
-
+    
             costContainer.style.display = (selectedOrigin === 'salon' || selectedOrigin === 'client') ? 'block' : 'none';
             professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
+            toggleServicePositioningField();
         });
+        document.getElementById('product-origin-preset').addEventListener('change', toggleServicePositioningField);
 
         // Adiciona sanitização no input para campos numéricos no formulário de adicionar serviço
         document.getElementById('service-manager').addEventListener('input', (e) => {
@@ -1460,6 +1569,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calculatorBtn.style.display = showStandardCost ? 'flex' : 'none'; // Controla a visibilidade do botão
             professionalCostContainer.style.display = selectedOrigin === 'professional' ? 'block' : 'none';
         });
+        document.getElementById('modal-product-origin').addEventListener('change', toggleModalPositioningField);
         // Adiciona sanitização no input para o campo de custo no modal
         document.getElementById('modal-product-cost').addEventListener('input', sanitizeNumericOnInput);
 
@@ -1473,7 +1583,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Adiciona listener para o novo bloco de pré-definição
-        document.getElementById('product-origin-preset').addEventListener('change', handleProductPresetChange);
+        const productPresetEl = document.getElementById('product-origin-preset');
+        productPresetEl.addEventListener('change', handleProductPresetChange);
+
+        // Adiciona listener para salvar a pré-definição de posicionamento
+        document.getElementById('positioning-preset').addEventListener('change', (e) => {
+            appState.presets.positioning = e.target.value;
+            saveState();
+        });
 
 
         
@@ -1485,6 +1602,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (appState.services.length > 0) {
             updateDashboard(appState.services[0].id);
+        }
+
+        // CORREÇÃO FINAL: Garante que a UI do formulário de serviço reflita a pré-seleção ao carregar.
+        // Movido para o final da inicialização para garantir que tudo esteja pronto.
+        const newServiceProductOriginSelect = document.getElementById('new-service-product-origin');
+        if (newServiceProductOriginSelect.value) {
+            newServiceProductOriginSelect.dispatchEvent(new Event('change'));
         }
     }
 

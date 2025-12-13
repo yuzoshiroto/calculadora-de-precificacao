@@ -328,22 +328,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
         const service = dashboardState?.services.find(s => s.name === serviceName);
 
-        if (isServiceCalculator() && service) {
-            const originMap = {
-                salon: 'Produto do Salão',
-                professional: 'Produto do Profissional',
-                client: 'Produto do Cliente'
-            };
-            statusLabel.textContent = originMap[service.productOrigin] || '';
-            statusLabel.style.display = 'inline-block';
+        // Reseta para o estado padrão antes de aplicar as novas regras
+        statusLabel.style.display = 'none';
+        calculatorContainer.classList.remove('disabled-calculator');
+        calculatorActions.classList.remove('disabled-calculator');
 
-            calculatorContainer.classList.remove('disabled-calculator');
-            calculatorActions.classList.remove('disabled-calculator');
-        } else {
-            // Reseta para o estado "Geral"
-            statusLabel.style.display = 'none';
-            calculatorContainer.classList.remove('disabled-calculator');
-            calculatorActions.classList.remove('disabled-calculator');
+        if (isServiceCalculator() && service) {
+            if (service.productOrigin === 'professional') {
+                // Trava a calculadora e exibe a mensagem
+                statusLabel.textContent = 'Calculadora travada para "Produto do Profissional"';
+                calculatorContainer.classList.add('disabled-calculator');
+                calculatorActions.classList.add('disabled-calculator');
+            } else {
+                // Exibe o status normal para "Produto do Salão" ou "Cliente"
+                const originMap = {
+                    salon: 'Produto do Salão',
+                    client: 'Produto do Cliente'
+                };
+                statusLabel.textContent = originMap[service.productOrigin] || '';
+            }
+            statusLabel.style.display = 'inline-block'; // Mostra a etiqueta de status
         }
     };
 

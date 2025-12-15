@@ -1049,24 +1049,27 @@ td input[type="text"].formatted-number-input:focus {
 }
 
 /* Estilos específicos para a tabela de Custo Fixo */
-#fixed-cost-table td input[type="number"], #variable-cost-table td input[type="number"],
-#fixed-cost-table td input[type="text"].formatted-number-input, #variable-cost-table td input[type="text"].formatted-number-input,
-#fixed-cost-table td input.text-input, #variable-cost-table td input.text-input {
+/* Unifica o estilo dos campos de edição entre as tabelas de Custo Fixo, Variável e Dashboard */
+#fixed-cost-table td input,
+#variable-cost-table td input,
+#pricing-table-body td input {
     background-color: var(--bg-light);
     border: 1px solid transparent;
     font-size: 1rem;
     font-weight: 400;
     font-family: 'Poppins', sans-serif;
+    color: var(--text-primary);
+    border-radius: 5px;
 }
 
-#fixed-cost-table td input[type="number"]:focus, #variable-cost-table td input[type="number"]:focus,
-#fixed-cost-table td input[type="text"].formatted-number-input:focus,
-#variable-cost-table td input[type="text"].formatted-number-input:focus,
-#fixed-cost-table td input.text-input:focus,
-#variable-cost-table td input.text-input:focus {
+/* Efeito de foco unificado */
+#fixed-cost-table td input:focus,
+#variable-cost-table td input:focus,
+#pricing-table-body td input:focus {
     background-color: var(--bg-light);
     border-color: var(--text-primary);
     /* Mantém o destaque ao focar, se desejado, ou pode ser removido/alterado */
+    outline: none;
 }
 
 td .input-with-symbol {
@@ -1907,9 +1910,14 @@ tbody tr.drag-over {
     vertical-align: middle;
 }
 
-/* Adiciona espaçamento ao cabeçalho "Uso" */
-#cost-calculator-table th:nth-child(6) {
-    padding-left: 39px;
+/* Centraliza o conteúdo da coluna "Unid. de medida" */
+#cost-calculator-table td:nth-child(2) {
+    text-align: center;
+}
+
+/* Impede a quebra de linha na coluna "Uso" da calculadora de produto */
+#cost-calculator-table td:nth-child(6) {
+    white-space: nowrap;
 }
 
 /* Unifica o estilo dos campos da tabela de Custo de Produto com a de Custo Fixo */
@@ -2134,6 +2142,51 @@ tbody tr.drag-over {
     bottom: 0;
     z-index: 10;
     background-color: var(--bg-light);
+}
+
+/* --- Estilos para o novo modo de edição do Faturamento --- */
+
+/* Container no modo de visualização */
+.revenue-view-mode {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Empurra o ícone para a direita */
+    cursor: pointer;
+    padding: 5px; /* Adiciona um respiro para a área de clique */
+    border-radius: 5px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.revenue-view-mode:hover {
+    background-color: var(--bg-dark); /* Fundo sutil ao passar o mouse */
+}
+
+.revenue-view-mode .revenue-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.revenue-view-mode .edit-revenue-btn {
+    color: var(--text-secondary);
+    opacity: 0.5; /* Ícone fica mais sutil */
+    transition: opacity 0.2s ease-in-out;
+}
+
+.revenue-view-mode:hover .edit-revenue-btn {
+    opacity: 1; /* Mostra o ícone completamente no hover */
+}
+
+/* Container no modo de edição */
+.revenue-edit-mode {
+    display: flex;
+    align-items: center;
+}
+
+/* Reduz a altura do card de faturamento na página de custo fixo */
+#revenue-display-container > div {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
 @media (max-width: 1920px) {
@@ -2556,11 +2609,6 @@ tbody tr.drag-over {
     #cost-calculator-table th {
         padding-top: 8px;
         padding-bottom: 8px;
-    }
-
-    /* Ajusta o espaçamento do cabeçalho "Uso" */
-    #cost-calculator-table th:nth-child(6) {
-        padding-left: 24px;
     }
 
     /* Reduz o padding dos botões de aba no cabeçalho */

@@ -330,22 +330,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Renderiza campos de input ou texto simples dependendo do modo de edição
             if (isInEditMode) {
+                row.classList.add('editing-row');
                 // Lógica para a célula de Custo de Produto no modo de edição
                 let productCostEditCellContent;
                 const isCurrentServiceUnviable = service.suggestedPrice === 0 && service.productCost > 0;
                 if (service.productOrigin === 'professional' && !isCurrentServiceUnviable) {
                     productCostEditCellContent = `<td>- <span class="product-origin-label">(${productOriginLabel})</span></td>`; // Exibe "-" e a origem do produto
                 } else {
-                    productCostEditCellContent = `<td><div class="input-with-prefix"><span>R$</span><input type="text" class="product-cost-input formatted-number-input" value="${formatNumberForDisplay(service.productCost)}" data-raw-value="${service.productCost.toFixed(2)}"></div></td>`;
+                    productCostEditCellContent = `<td><div class="input-with-prefix"><span>R$</span><input type="text" class="product-cost-input formatted-number-input number-input" value="${formatNumberForDisplay(service.productCost)}" data-raw-value="${service.productCost.toFixed(2)}"></div></td>`;
                 }
 
                 row.innerHTML = /*html*/`
                     <td>${service.name}</td>
                     <td>
-                        <div class="input-with-prefix"><span>R$</span><input type="text" class="current-price-input formatted-number-input" value="${formatNumberForDisplay(service.currentPrice)}" data-raw-value="${service.currentPrice.toFixed(2)}"></div>
+                        <div class="input-with-prefix"><span>R$</span><input type="text" class="current-price-input formatted-number-input number-input" value="${formatNumberForDisplay(service.currentPrice)}" data-raw-value="${service.currentPrice.toFixed(2)}"></div>
                     </td>
                     ${productCostEditCellContent}
-                    <td><div class="input-with-symbol"><input type="number" class="commission-input" value="${formatPercentageForInput(service.commission)}" step="0.01"><span>%</span></div></td>
+                    <td><div class="input-with-symbol"><input type="number" class="commission-input number-input" value="${formatPercentageForInput(service.commission)}" step="0.01"><span>%</span></div></td>
                     <td>
                         <div class="admin-fee-edit-container">
                             <input type="text" class="admin-fee-input formatted-number-input" value="${adminFeeEditValue}" data-raw-value="${adminFeeEditRawValue}">

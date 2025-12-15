@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const GENERAL_CALCULATOR_KEY = 'productCostCalculatorState_general';
     const DASHBOARD_STATE_KEY = 'pricingAppState';
     const SETTINGS_KEY = 'productCostCalculatorSettings'; // Chave para configurações globais da calculadora
+
+    let products = [];
+    let editingProductId = null;
+
     let currentCalculatorKey = GENERAL_CALCULATOR_KEY;
     let calculatorSettings = { extraTax: 0 }; // Estado para as configurações
     // --- FUNÇÕES DE FORMATAÇÃO E PARSE ---
@@ -43,20 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const isServiceCalculator = () => currentCalculatorKey !== GENERAL_CALCULATOR_KEY;
 
     const calculateRow = (row) => {
-        const priceInput = row.querySelector('[data-col="price"]');
-        const volumeInput = row.querySelector('[data-col="volume"]');
-        const usageInput = row.querySelector('[data-col="usage"]');
+        const productId = row.dataset.rowId;
+        const product = products.find(p => p.id === productId);
+        if (!product) return 0;
 
-        // Usa o valor do campo durante a digitação e o dataset para valores já formatados.
-        const price = parseFormattedNumber(priceInput.value);
-        const volume = parseFormattedNumber(volumeInput.value);
-        const usage = parseFormattedNumber(usageInput.value);
+        const price = parseFloat(product.price) || 0;
+        const volume = parseFloat(product.volume) || 0;
+        const usage = parseFloat(product.usage) || 0;
 
         const pricePerGram = (volume > 0) ? (price / volume) : 0;
         const doseValue = pricePerGram * usage;
 
-        row.querySelector('.price-per-gram').textContent = pricePerGram > 0 ? formatCurrency(pricePerGram) : '-';
-        row.querySelector('.dose-value').textContent = doseValue > 0 ? formatCurrency(doseValue) : '-';
+        const pricePerGramEl = row.querySelector('.price-per-gram');
+        const doseValueEl = row.querySelector('.dose-value');
+        if (pricePerGramEl) pricePerGramEl.textContent = pricePerGram > 0 ? formatCurrency(pricePerGram) : '-';
+        if (doseValueEl) doseValueEl.textContent = doseValue > 0 ? formatCurrency(doseValue) : '-';
 
         return doseValue;
     };
@@ -64,14 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateTotal = () => {
         let subTotal = 0;
         const rows = tableBody.querySelectorAll('tr');
-        rows.forEach(row => {
-            subTotal += calculateRow(row);
+        products.forEach(product => {
+            const price = parseFloat(product.price) || 0;
+            const volume = parseFloat(product.volume) || 0;
+            const usage = parseFloat(product.usage) || 0;
+            const pricePerGram = (volume > 0) ? (price / volume) : 0;
+            subTotal += pricePerGram * usage;
         });
 
         // Aplica a taxa extra
         const extraTax = calculatorSettings.extraTax || 0;
         const total = subTotal * (1 + extraTax);
-
         totalDoseCostEl.textContent = formatCurrency(total);
         // Atualiza o contador de produtos
         const productCount = rows.length;
@@ -79,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         productCountDisplay.textContent = `${productCount} ${productCount === 1 ? 'produto' : 'produtos'}`;
 
         saveState();
+        renderTable();
     };
 
     const updatePlaceholders = () => {
@@ -99,114 +108,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const createRow = (product = { name: '', unit: 'g', price: '', volume: '', usage: '' }) => {
-        // Verifica se esta será a primeira linha na tabela.
-        // A verificação é feita antes de a nova linha ser adicionada.
-        const isFirstRow = tableBody.children.length === 0;
+    const createRow = (product, isEditing) => {
+        const row = document.createElement('tr');
+        row.dataset.rowId = product.id;
 
-        // Ao carregar do localStorage, 'price' já é um número (ex: "290.00").
         const priceAsNumber = parseFloat(product.price) || 0;
+        const volumeAsNumber = parseFloat(product.volume) || 0;
+        const usageAsNumber = parseFloat(product.usage) || 0;
         const unit = product.unit || 'g';
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="text" class="text-input" placeholder="${isFirstRow ? 'Ex: Shampoo' : ''}" value="${product.name}" data-col="name"></td>
-            <td>
-                <select class="select-input" data-col="unit">
-                    <option value="g" ${unit === 'g' ? 'selected' : ''}>g</option>
-                    <option value="ml" ${unit === 'ml' ? 'selected' : ''}>ml</option>
-                    <option value="Unid." ${unit === 'Unid.' ? 'selected' : ''}>Unid.</option>
-                </select>
-            </td>
-            <td><input type="text" class="number-input formatted-number-input" placeholder="${isFirstRow ? '290,00' : ''}" value="${formatNumberForDisplay(priceAsNumber)}" data-col="price" data-raw-value="${priceAsNumber.toFixed(2)}"></td>
-            <td>
-                <div class="input-with-unit">
-                    <input type="text" class="number-input" placeholder="${isFirstRow ? '1000' : ''}" value="${product.volume}" data-col="volume">
-                    <span class="unit-display">${unit}</span>
-                </div>
-            </td>
-            <td class="price-per-gram">-</td>
-            <td><div class="input-with-unit"><input type="text" class="number-input" placeholder="${isFirstRow ? '6' : ''}" value="${product.usage}" data-col="usage"><span class="unit-display">${unit}</span></div></td>
-            <td class="dose-value">-</td>
-            <td><button class="action-btn remove-row-btn" title="Remover Produto">🗑️</button></td>
-        `;
+        const pricePerGram = (volumeAsNumber > 0) ? (priceAsNumber / volumeAsNumber) : 0;
+        const doseValue = pricePerGram * usageAsNumber;
 
-        // Listeners para formatação de número (foco e perda de foco)
-        const formattedInput = row.querySelector('.formatted-number-input');
-        formattedInput.addEventListener('focus', (e) => {
-            const rawValue = e.target.dataset.rawValue || '0';
-            // Ao focar, mostra o valor com vírgula para edição
-            e.target.value = rawValue.replace('.', ',');
-            e.target.select();
-        });
-
-        formattedInput.addEventListener('blur', (e) => {
-            if (e.target.value.trim() === '' || parseFormattedNumber(e.target.value) === 0) {
-                e.target.dataset.rawValue = '0.00';
-                e.target.value = ''; // Deixa vazio para o placeholder aparecer
-            } else {
-                const rawValue = parseFormattedNumber(e.target.value);
-                e.target.dataset.rawValue = rawValue.toFixed(2);
-                e.target.value = formatNumberForDisplay(rawValue);
-            }
-            calculateTotal(); // Recalcula após formatar
-        });
-
-        // Listener para o seletor de unidade
-        const unitSelector = row.querySelector('[data-col="unit"]');
-        unitSelector.addEventListener('change', (e) => {
-            const newUnit = e.target.value;
-            row.querySelectorAll('.unit-display').forEach(span => {
-                span.textContent = newUnit;
-            });
-            calculateTotal(); // Salva o estado
-        });
-        // Adiciona listeners para cálculo automático
-        row.querySelectorAll('input').forEach(input => {
-            // Adiciona sanitização em todos os campos numéricos da linha
-            if (input.classList.contains('number-input')) {
-                input.addEventListener('input', sanitizeNumericOnInput);
-            }
-
-            input.addEventListener('input', calculateTotal);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    calculateTotal();
-                    e.target.blur();
-                }
-            });
-        });
-
-        // Listener para o botão de remover
-        row.querySelector('.remove-row-btn').addEventListener('click', () => {
-            row.remove();
-            updatePlaceholders(); // Garante que a nova primeira linha tenha os exemplos
-            calculateTotal();
-        });
+        if (isEditing) {
+            row.classList.add('editing-row');
+            row.innerHTML = `
+                <td><input type="text" class="text-input" placeholder="Ex: Shampoo" value="${product.name}" data-col="name"></td>
+                <td>
+                    <select class="select-input" data-col="unit">
+                        <option value="g" ${unit === 'g' ? 'selected' : ''}>g</option>
+                        <option value="ml" ${unit === 'ml' ? 'selected' : ''}>ml</option>
+                        <option value="Unid." ${unit === 'Unid.' ? 'selected' : ''}>Unid.</option>
+                    </select>
+                </td>
+                <td><input type="text" class="number-input formatted-number-input" placeholder="290,00" value="${formatNumberForDisplay(priceAsNumber)}" data-col="price" data-raw-value="${priceAsNumber.toFixed(2)}"></td>
+                <td>
+                    <div class="input-with-unit">
+                        <input type="text" class="number-input" placeholder="1000" value="${product.volume}" data-col="volume">
+                        <span class="unit-display">${unit}</span>
+                    </div>
+                </td>
+                <td class="price-per-gram">${pricePerGram > 0 ? formatCurrency(pricePerGram) : '-'}</td>
+                <td>
+                    <div class="input-with-unit">
+                        <input type="text" class="number-input" placeholder="6" value="${product.usage}" data-col="usage">
+                        <span class="unit-display">${unit}</span>
+                    </div>
+                </td>
+                <td class="dose-value">${doseValue > 0 ? formatCurrency(doseValue) : '-'}</td>
+                <td>
+                    <button class="action-btn save-row-btn" title="Salvar Alterações">✔️</button>
+                </td>
+            `;
+        } else {
+            row.innerHTML = `
+                <td>${product.name}</td>
+                <td>${unit}</td>
+                <td>${formatCurrency(priceAsNumber)}</td>
+                <td>${product.volume} ${unit}</td>
+                <td class="price-per-gram">${pricePerGram > 0 ? formatCurrency(pricePerGram) : '-'}</td>
+                <td>${product.usage} ${unit}</td>
+                <td class="dose-value">${doseValue > 0 ? formatCurrency(doseValue) : '-'}</td>
+                <td>
+                    <button class="action-btn edit-row-btn" title="Editar Produto">✏️</button>
+                    <button class="action-btn remove-row-btn" title="Remover Produto">🗑️</button>
+                </td>
+            `;
+        }
 
         return row;
     };
 
+    const renderTable = () => {
+        tableBody.innerHTML = '';
+        products.forEach(product => {
+            const isEditing = product.id === editingProductId;
+            const row = createRow(product, isEditing);
+            tableBody.appendChild(row);
+        });
+        updatePlaceholders();
+    };
+
     const addRow = () => {
-        const newRow = createRow();
-        tableBody.appendChild(newRow);
-        newRow.querySelector('input[data-col="name"]').focus();
-        // CORREÇÃO: Recalcula tudo para atualizar o contador e salvar o estado.
+        const newProduct = { id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' };
+        products.push(newProduct);
+        editingProductId = newProduct.id;
         calculateTotal();
+        const newRowInput = tableBody.querySelector(`[data-row-id="${newProduct.id}"] input[data-col="name"]`);
+        if (newRowInput) {
+            newRowInput.focus();
+        }
     };
 
     // --- PERSISTÊNCIA DE DADOS (LocalStorage) ---
 
     const saveState = () => {
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        const state = rows.map(row => ({
-            name: row.querySelector('[data-col="name"]').value,
-            unit: row.querySelector('[data-col="unit"]').value,
-            price: row.querySelector('[data-col="price"]').dataset.rawValue || '0',
-            volume: row.querySelector('[data-col="volume"]').value,
-            usage: row.querySelector('[data-col="usage"]').value,
-        }));
-        localStorage.setItem(currentCalculatorKey, JSON.stringify(state));
+        localStorage.setItem(currentCalculatorKey, JSON.stringify(products));
     };
 
     const saveSettings = () => {
@@ -223,21 +210,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadState = () => {
         const savedState = localStorage.getItem(currentCalculatorKey);
+        tableBody.innerHTML = ''; // Limpa a tabela antes de carregar
         if (savedState) {
-            // CORREÇÃO: Sempre carrega o estado salvo, mesmo que as linhas estejam vazias.
-            // Isso garante que a quantidade de linhas adicionadas pelo usuário seja preservada.
-            const products = JSON.parse(savedState);
-            products.forEach(product => tableBody.appendChild(createRow(product)));
-            if (products.length === 0) {
+            const savedProducts = JSON.parse(savedState);
+            // Garante que todos os produtos tenham um ID
+            products = savedProducts.map(p => p.id ? p : { ...p, id: crypto.randomUUID() });
+
+            if (products.length === 0 && currentCalculatorKey === GENERAL_CALCULATOR_KEY) {
                 // Se não houver produtos salvos, adiciona 5 linhas vazias como na planilha
                 for (let i = 0; i < 5; i++) {
-                    addRow();
+                    products.push({ id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' });
                 }
             }
         } else {
             // Se for o primeiro acesso, adiciona 5 linhas vazias
             for (let i = 0; i < 5; i++) {
-                addRow();
+                products.push({ id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' });
             }
         }
         calculateTotal();
@@ -249,13 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearAllBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja limpar todos os produtos dessa calculadora?')) {
-            tableBody.innerHTML = '';
-
-            const rowsToAdd = 1;
-            // Adiciona linhas novas após limpar
-            for (let i = 0; i < rowsToAdd; i++) {
-                addRow();
-            }            updatePlaceholders();
+            products = [];
+            editingProductId = null;
+            // Adiciona uma linha em branco para recomeçar
+            addRow();
             calculateTotal(); // Recalcula e salva o estado final
         }
     });
@@ -281,6 +266,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    tableBody.addEventListener('click', (e) => {
+        const target = e.target;
+        const row = target.closest('tr');
+        if (!row) return;
+
+        const rowId = row.dataset.rowId;
+
+        if (target.classList.contains('edit-row-btn')) {
+            editingProductId = rowId;
+            renderTable();
+        } else if (target.classList.contains('remove-row-btn')) {
+            if (confirm('Tem certeza que deseja remover este produto?')) {
+                const index = products.findIndex(p => p.id === rowId);
+                if (index > -1) {
+                    products.splice(index, 1);
+                    calculateTotal();
+                }
+            }
+        } else if (target.classList.contains('save-row-btn')) {
+            const product = products.find(p => p.id === rowId);
+            if (product) {
+                product.name = row.querySelector('[data-col="name"]').value;
+                product.unit = row.querySelector('[data-col="unit"]').value;
+                product.price = row.querySelector('[data-col="price"]').dataset.rawValue || '0';
+                product.volume = row.querySelector('[data-col="volume"]').value;
+                product.usage = row.querySelector('[data-col="usage"]').value;
+            }
+            editingProductId = null;
+            calculateTotal();
+        }
+    });
+
+    tableBody.addEventListener('input', (e) => {
+        const input = e.target;
+        const row = input.closest('tr');
+        if (!row || !row.classList.contains('editing-row')) return;
+
+        if (input.classList.contains('formatted-number-input')) {
+            sanitizeNumericOnInput(e);
+            const rawValue = parseFormattedNumber(input.value);
+            input.dataset.rawValue = rawValue.toFixed(2);
+        } else if (input.classList.contains('number-input')) {
+            sanitizeNumericOnInput(e);
+        }
+
+        // Live update for calculated values
+        const price = parseFormattedNumber(row.querySelector('[data-col="price"]').value);
+        const volume = parseFormattedNumber(row.querySelector('[data-col="volume"]').value);
+        const usage = parseFormattedNumber(row.querySelector('[data-col="usage"]').value);
+        const unit = row.querySelector('[data-col="unit"]').value;
+
+        const pricePerGram = (volume > 0) ? (price / volume) : 0;
+        const doseValue = pricePerGram * usage;
+
+        row.querySelector('.price-per-gram').textContent = pricePerGram > 0 ? formatCurrency(pricePerGram) : '-';
+        row.querySelector('.dose-value').textContent = doseValue > 0 ? formatCurrency(doseValue) : '-';
+        row.querySelectorAll('.unit-display').forEach(span => {
+            span.textContent = unit;
+        });
+    });
+
     extraTaxInput.addEventListener('input', sanitizeNumericOnInput);
     extraTaxInput.addEventListener('change', (e) => {
         const value = parseFloat(e.target.value.replace(',', '.')) || 0;
@@ -289,6 +335,29 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = value.toFixed(2).replace('.', ',');
         saveSettings();
         calculateTotal();
+    });
+
+    // Handlers for formatted number inputs inside the table
+    tableBody.addEventListener('focusin', (e) => {
+        if (e.target.classList.contains('formatted-number-input')) {
+            const input = e.target;
+            const rawValue = input.dataset.rawValue || '0';
+            input.value = rawValue.replace('.', ',');
+            input.select();
+        }
+    });
+
+    tableBody.addEventListener('focusout', (e) => {
+        if (e.target.classList.contains('formatted-number-input')) {
+            const input = e.target;
+            if (input.value.trim() === '') {
+                input.dataset.rawValue = '0.00';
+                input.value = '';
+            } else {
+                const rawValue = parseFormattedNumber(input.value);
+                input.value = formatNumberForDisplay(rawValue);
+            }
+        }
     });
 
     // --- LÓGICA PARA POSICIONAMENTO DINÂMICO DO TOOLTIP DA TAXA EXTRA ---
@@ -365,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         history.replaceState({}, '', url); // Atualiza a URL sem criar nova entrada no histórico
         tableBody.innerHTML = '';
-        loadState();
+        loadState(); // Carrega o estado do serviço selecionado
         // Garante que a seta feche ao selecionar um item
         const dropdownWrapper = calculatorTitle.parentElement;
         dropdownWrapper.classList.remove('open');
@@ -427,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wasLoadedFromUrl = initializeSelector();
     // Só carrega o estado inicial (Geral) se nenhum serviço específico foi carregado pela URL
     if (!wasLoadedFromUrl) {
-        loadState();
+        loadState(); // Carrega o estado geral
         updateCalculatorState('general'); // Garante que o estado visual esteja correto para "Simulado"
     }
 });

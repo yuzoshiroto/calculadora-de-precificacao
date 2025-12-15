@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const revenueInput = document.getElementById('revenue-input');
+    const revenueContainer = document.getElementById('revenue-display-container');
 
     // Elementos da Tabela de Custo Fixo
     const fixedCostTableBody = document.getElementById('fixed-cost-body');
@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Estado da UI
     let editingFixedRowId = null;
     let editingVariableRowId = null;
+    let isEditingRevenue = false;
     let fixedExpenses = [];
     let variableExpenses = [];
 
@@ -83,31 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = value.replace(/[^0-9,]/g, '');
     };
 
-    // --- FUNÇÃO PARA AJUSTAR LARGURA DO INPUT DE FATURAMENTO ---
-    const updateRevenueInputWidth = () => {
-        // Cria um span temporário e invisível para medir o texto
-        const tempSpan = document.createElement('span');
-        document.body.appendChild(tempSpan);
-
-        tempSpan.style.font = `600 1.5rem 'Poppins', sans-serif`; // Pega os estilos do input
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.whiteSpace = 'pre'; // Garante que espaços sejam contados
-
-        // Usa o placeholder se o campo estiver vazio, senão usa o valor
-        tempSpan.textContent = revenueInput.value || revenueInput.placeholder;
-
-        // Encontra o card pai ".detail-card"
-        // const detailCard = revenueInput.closest('.detail-card');
-        // if (detailCard) {
-        //     // Define a largura do card pai com um respiro (padding)
-        //     // O padding do card (1rem de cada lado) já dá um bom respiro.
-        //     detailCard.style.width = `${tempSpan.offsetWidth + 75}px`; // 40px de respiro extra
-        // }
-
-        document.body.removeChild(tempSpan); // Remove o span temporário
-    };
-
     // --- LÓGICA PRINCIPAL ---
 
     // Função genérica para calcular totais de uma tabela
@@ -126,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calculateAll = () => {
-        const revenue = parseFormattedNumber(revenueInput.value) || 0;
+        const revenueInput = document.getElementById('revenue-input'); // Pode estar nulo se não estiver em modo de edição
+        const revenue = revenueInput ? parseFormattedNumber(revenueInput.value) : parseFloat(revenueContainer.dataset.rawValue) || 0;
 
         // Calcula para Custos Fixos
         const totalFixedCost = fixedExpenses.reduce((sum, expense) => sum + (parseFloat(expense.value) || 0), 0);
@@ -164,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement('tr');
         row.dataset.rowId = expense.id;
         const valueAsNumber = parseFloat(expense.value) || 0;
-        const revenue = parseFormattedNumber(revenueInput.value) || 0;
+        const revenue = parseFloat(revenueContainer.dataset.rawValue) || 0;
         const percentage = revenue > 0 ? (valueAsNumber / revenue) * 100 : 0;
 
         if (isEditing) {
@@ -224,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- PERSISTÊNCIA DE DADOS (LocalStorage) ---
     const saveState = () => {
         const state = {
-            revenue: revenueInput.dataset.rawValue || '0',
+            revenue: revenueContainer.dataset.rawValue || '0',
             fixedExpenses: fixedExpenses,
             variableExpenses: variableExpenses,
         };
@@ -247,19 +224,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (savedState) {
             const state = JSON.parse(savedState);
-            revenueInput.dataset.rawValue = state.revenue || '32000';
-            revenueInput.value = formatNumberForDisplay(parseFloat(state.revenue));
+            revenueContainer.dataset.rawValue = state.revenue || '32000';
 
             fixedExpenses = populateData(state.fixedExpenses, INITIAL_FIXED_EXPENSES);
             variableExpenses = populateData(state.variableExpenses, INITIAL_VARIABLE_EXPENSES);
         } else {
             // Primeiro acesso, carrega valores padrão
-            revenueInput.dataset.rawValue = '32000.00';
-            revenueInput.value = formatNumberForDisplay(32000);
+            revenueContainer.dataset.rawValue = '32000.00';
             fixedExpenses = populateData(null, INITIAL_FIXED_EXPENSES);
             variableExpenses = populateData(null, INITIAL_VARIABLE_EXPENSES);
         }
+        renderRevenue();
         fullRecalculateAndRender();
+    };
+
+    const renderRevenue = () => {
+        const rawValue = parseFloat(revenueContainer.dataset.rawValue) || 0;
+
+        if (isEditingRevenue) {
+            revenueContainer.innerHTML = `
+                <div class="revenue-edit-mode">
+                    <div class="input-with-prefix">
+                        <span style="font-size: 1.5rem; color: var(--primary);">R$</span>
+                        <input type="text" id="revenue-input" class="formatted-number-input" placeholder="Ex: 32.000,00"
+                            data-raw-value="${rawValue.toFixed(2)}"
+                            style="font-family: 'Poppins', sans-serif; font-size: 1.6rem; font-weight: 600; color: var(--primary); width: 100%; background: transparent; border: none; padding-left: 5px;">
+                    </div>
+                    <button class="action-btn save-revenue-btn" title="Salvar Faturamento">✔️</button>
+                </div>
+            `;
+            const revenueInput = document.getElementById('revenue-input');
+            revenueInput.value = rawValue.toFixed(2).replace('.', ',');
+            revenueInput.focus();
+            revenueInput.select();
+
+            revenueInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    saveRevenue();
+                }
+            });
+            revenueInput.addEventListener('input', sanitizeNumericOnInput);
+
+        } else {
+            revenueContainer.innerHTML = `
+                <div class="revenue-view-mode">
+                    <span class="revenue-value">${formatCurrency(rawValue)}</span>
+                    <button class="action-btn edit-revenue-btn" title="Editar Faturamento">✏️</button>
+                </div>
+            `;
+        }
     };
 
     // --- MANIPULADORES DE EVENTOS ---
@@ -397,21 +410,33 @@ document.addEventListener('DOMContentLoaded', () => {
     fixedCostTableBody.addEventListener('focusout', handleTableBlur);
     variableCostTableBody.addEventListener('focusout', handleTableBlur);
 
-    // Listeners para o campo de faturamento
-    revenueInput.addEventListener('input', updateRevenueInputWidth);
-    revenueInput.addEventListener('input', sanitizeNumericOnInput);
-    revenueInput.addEventListener('input', fullRecalculateAndRender);
-    revenueInput.addEventListener('focus', (e) => {
-        const rawValue = e.target.dataset.rawValue || '0';
-        e.target.value = rawValue.replace('.', ',');
-        e.target.select();
-    });
-    revenueInput.addEventListener('blur', (e) => {
-        const rawValue = parseFormattedNumber(e.target.value) || 0;
-        e.target.dataset.rawValue = rawValue.toFixed(2);
-        e.target.value = formatNumberForDisplay(rawValue);
+    const saveRevenue = () => {
+        const revenueInput = document.getElementById('revenue-input');
+        if (!revenueInput) return;
+
+        const rawValue = parseFormattedNumber(revenueInput.value) || 0;
+        revenueContainer.dataset.rawValue = rawValue.toFixed(2);
+        isEditingRevenue = false;
+        renderRevenue();
         fullRecalculateAndRender();
-        updateRevenueInputWidth(); // Atualiza a largura também no blur
+    };
+
+    // Listener de clique para o container de faturamento
+    revenueContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('edit-revenue-btn')) {
+            isEditingRevenue = true;
+            renderRevenue();
+        } else if (target.classList.contains('save-revenue-btn')) {
+            saveRevenue();
+        }
+    });
+
+    revenueContainer.addEventListener('focusout', (e) => {
+        // Se o foco sair do input de faturamento, salva automaticamente
+        if (e.target.id === 'revenue-input' && !e.relatedTarget?.classList.contains('save-revenue-btn')) {
+            saveRevenue();
+        }
     });
 
     function fullRecalculateAndRender() {
@@ -420,5 +445,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INICIALIZAÇÃO ---
     loadState();
-    updateRevenueInputWidth(); // Garante a largura correta ao carregar a página
 });

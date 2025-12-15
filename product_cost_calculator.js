@@ -210,6 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadState = () => {
         const savedState = localStorage.getItem(currentCalculatorKey);
+        // CORREÇÃO: Reseta o array de produtos antes de carregar um novo estado.
+        // Isso impede que os produtos do "Simulado" sejam mantidos ao trocar para um novo serviço.
+        products = [];
         tableBody.innerHTML = ''; // Limpa a tabela antes de carregar
         if (savedState) {
             const savedProducts = JSON.parse(savedState);

@@ -1582,6 +1582,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tooltip.addEventListener('mouseenter', handleTooltipPosition);
             tooltip.addEventListener('mouseover', handleTooltipPosition); // Garante o reposicionamento
         });
+        // Adiciona listeners para os novos tooltips de posicionamento
+        document.querySelectorAll('#positioning-preset-tooltip, #positioning-service-tooltip').forEach(tooltip => {
+            tooltip.addEventListener('mouseenter', handleTooltipPosition);
+            tooltip.addEventListener('mouseover', handleTooltipPosition);
+        });
 
         // Adiciona listener para o novo bloco de pré-definição
         const productPresetEl = document.getElementById('product-origin-preset');

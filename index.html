@@ -54,7 +54,13 @@
                                 </label>
                             </div>
                             <div class="positioning-section" id="positioning-section" style="display: none;">
-                                <h4 class="param-subtitle">Posicionamento</h4>
+                                <div class="subtitle-with-tooltip">
+                                    <h4 class="param-subtitle">Posicionamento</h4>
+                                    <div class="info-tooltip" id="positioning-preset-tooltip">
+                                        <i class="info-icon">i</i>
+                                        <span class="tooltip-text">Seu posicionamento em comparação com outros salões em tamanho, público alvo, experiencia que é gerado, portfólio de serviços, presença digital, etc.</span>
+                                    </div>
+                                </div>
                                 <div class="preset-options" id="positioning-preset">
                                     <label class="radio-label"><input type="radio" name="positioning_preset" value="above_average"><span>Acima da média</span></label>
                                     <label class="radio-label"><input type="radio" name="positioning_preset" value="average" checked><span>Na média</span></label>
@@ -105,7 +111,13 @@
                              </div>
                              
                              <div class="form-field" id="new-service-positioning-container" style="display: none;">
-                                <label>Posicionamento</label>
+                                <div class="subtitle-with-tooltip">
+                                    <label>Posicionamento</label>
+                                    <div class="info-tooltip" id="positioning-service-tooltip">
+                                        <i class="info-icon">i</i>
+                                        <span class="tooltip-text">Seu posicionamento em comparação com outros salões em tamanho, público alvo, experiencia que é gerado, portfólio de serviços, presença digital, etc.</span>
+                                    </div>
+                                </div>
                                 <div class="preset-options">
                                     <!-- AQUI ESTÁ A CORREÇÃO: style="width: auto;" para impedir que o CSS do #service-manager force 100% de largura -->
                                     <label class="radio-label"><input type="radio" name="new_service_positioning_preset" value="above_average" style="width: auto;"><span>Acima da média</span></label>

@@ -410,6 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
     fixedCostTableBody.addEventListener('focusout', handleTableBlur);
     variableCostTableBody.addEventListener('focusout', handleTableBlur);
 
+    // Salva a linha ao pressionar Enter em um campo de input da tabela
+    const handleTableKeyDown = (e) => {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+            e.preventDefault(); // Impede o comportamento padrão do Enter
+            const row = e.target.closest('tr.editing-row');
+            // Simula o clique no botão de salvar da linha correspondente
+            row.querySelector('.save-row-btn')?.click();
+        }
+    };
+    fixedCostTableBody.addEventListener('keydown', handleTableKeyDown);
+    variableCostTableBody.addEventListener('keydown', handleTableKeyDown);
+
     const saveRevenue = () => {
         const revenueInput = document.getElementById('revenue-input');
         if (!revenueInput) return;

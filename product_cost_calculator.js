@@ -363,6 +363,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Salva a linha ao pressionar Enter em um campo de input da tabela
+    tableBody.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+            e.preventDefault(); // Impede o comportamento padrão do Enter
+            const row = e.target.closest('tr.editing-row');
+            if (row) {
+                // Simula o clique no botão de salvar da linha
+                row.querySelector('.save-row-btn')?.click();
+            }
+        }
+    });
     // --- LÓGICA PARA POSICIONAMENTO DINÂMICO DO TOOLTIP DA TAXA EXTRA ---
     function handleExtraTaxTooltipPosition(event) {
         const tooltip = event.currentTarget; // O .info-tooltip

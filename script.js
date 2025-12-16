@@ -1474,6 +1474,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Salva a linha ao pressionar Enter em um campo de input da tabela
+        document.getElementById('pricing-table-body').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                const row = e.target.closest('tr.editing-row');
+                if (row) {
+                    e.preventDefault(); // Impede o comportamento padrão do Enter
+                    handleSaveService(row.dataset.serviceId);
+                }
+            }
+        });
+
         document.getElementById('service-manager').addEventListener('focusin', handleInputFocus);
         document.getElementById('service-manager').addEventListener('focusout', handleInputBlur);
         document.getElementById('pricing-table-body').addEventListener('click', (e) => {

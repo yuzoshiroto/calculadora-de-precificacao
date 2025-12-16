@@ -1945,6 +1945,11 @@ tbody tr.drag-over {
     white-space: nowrap;
 }
 
+/* Reduz o espaçamento entre os ícones de ação na Calculadora de Custo de Produto */
+#cost-calculator-table .edit-row-btn {
+    margin-right: 5px;
+}
+
 /* Unifica o estilo dos campos da tabela de Custo de Produto com a de Custo Fixo */
 #cost-calculator-table input.text-input,
 #cost-calculator-table input.number-input,

@@ -1940,6 +1940,11 @@ tbody tr.drag-over {
     white-space: nowrap;
 }
 
+/* Impede a quebra de linha na coluna "Ações" da calculadora de produto */
+#cost-calculator-table td:last-child {
+    white-space: nowrap;
+}
+
 /* Unifica o estilo dos campos da tabela de Custo de Produto com a de Custo Fixo */
 #cost-calculator-table input.text-input,
 #cost-calculator-table input.number-input,

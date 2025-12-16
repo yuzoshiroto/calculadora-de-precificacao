@@ -1,12 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('cost-calculator-body');
+    const calculatorTitle = document.getElementById('calculator-title');
+    const serviceSelector = document.getElementById('service-selector');
     const addProductBtn = document.getElementById('add-product-row-btn');
+    const calculatorContainer = document.querySelector('.pricing-table-container');
+    const calculatorActions = document.querySelector('.calculator-actions');
+    const statusLabel = document.getElementById('service-status-label');
     const clearAllBtn = document.getElementById('clear-all-btn');
     const copyTotalBtn = document.getElementById('copy-total-btn');
     const totalDoseCostEl = document.getElementById('total-dose-cost');
 
     const extraTaxInput = document.getElementById('extra-tax-input');
     const GENERAL_CALCULATOR_KEY = 'productCostCalculatorState_general';
+    const DASHBOARD_STATE_KEY = 'pricingAppState';
     const SETTINGS_KEY = 'productCostCalculatorSettings'; // Chave para configurações globais da calculadora
 
     let products = [];
@@ -38,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- LÓGICA PRINCIPAL ---
+    const isServiceCalculator = () => currentCalculatorKey !== GENERAL_CALCULATOR_KEY;
+
     const calculateRow = (row) => {
         const productId = row.dataset.rowId;
         const product = products.find(p => p.id === productId);
@@ -185,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- PERSISTÊNCIA DE DADOS (LocalStorage) ---
 
     const saveState = () => {
-        localStorage.setItem(GENERAL_CALCULATOR_KEY, JSON.stringify(products));
+        localStorage.setItem(currentCalculatorKey, JSON.stringify(products));
     };
 
     const saveSettings = () => {
@@ -201,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadState = () => {
-        const savedState = localStorage.getItem(GENERAL_CALCULATOR_KEY);
+        const savedState = localStorage.getItem(currentCalculatorKey);
         // CORREÇÃO: Reseta o array de produtos antes de carregar um novo estado.
         // Isso impede que os produtos do "Simulado" sejam mantidos ao trocar para um novo serviço.
         products = [];
@@ -211,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Garante que todos os produtos tenham um ID
             products = savedProducts.map(p => p.id ? p : { ...p, id: crypto.randomUUID() });
 
-            if (products.length === 0) {
+            if (products.length === 0 && currentCalculatorKey === GENERAL_CALCULATOR_KEY) {
                 // Se não houver produtos salvos, adiciona 5 linhas vazias como na planilha
                 for (let i = 0; i < 5; i++) {
                     products.push({ id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' });
@@ -399,6 +407,98 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltipText.style.left = `${left}px`;
     }
 
+    const updateCalculatorState = (serviceName) => {
+        const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
+        const service = dashboardState?.services.find(s => s.name === serviceName);
+
+        // Reseta para o estado padrão antes de aplicar as novas regras
+        statusLabel.style.display = 'none';
+        calculatorContainer.classList.remove('disabled-calculator');
+        calculatorActions.classList.remove('disabled-calculator');
+
+        if (isServiceCalculator() && service) {
+            if (service.productOrigin === 'professional') {
+                // Trava a calculadora e exibe a mensagem
+                statusLabel.textContent = 'Calculadora travada para "Produto do Profissional"';
+                calculatorContainer.classList.add('disabled-calculator');
+                calculatorActions.classList.add('disabled-calculator');
+            } else {
+                // Exibe o status normal para "Produto do Salão" ou "Cliente"
+                const originMap = {
+                    salon: 'Produto do Salão',
+                    client: 'Produto do Cliente'
+                };
+                statusLabel.textContent = originMap[service.productOrigin] || '';
+            }
+            statusLabel.style.display = 'inline-block'; // Mostra a etiqueta de status
+        }
+    };
+
+    serviceSelector.addEventListener('change', (e) => {
+        const selectedService = e.target.value;
+        const url = new URL(window.location);
+        if (selectedService === 'general') {
+            calculatorTitle.textContent = 'Simulado';
+            currentCalculatorKey = GENERAL_CALCULATOR_KEY;
+            url.searchParams.delete('service');
+        } else {
+            calculatorTitle.textContent = selectedService;
+            currentCalculatorKey = `productCostCalculatorState_${selectedService}`;
+            url.searchParams.set('service', selectedService);
+        }
+        history.replaceState({}, '', url); // Atualiza a URL sem criar nova entrada no histórico
+        tableBody.innerHTML = '';
+        loadState(); // Carrega o estado do serviço selecionado
+        // Garante que a seta feche ao selecionar um item
+        const dropdownWrapper = calculatorTitle.parentElement;
+        dropdownWrapper.classList.remove('open');
+        updateCalculatorState(selectedService);
+    });
+
+    // Controla a seta do dropdown
+    const dropdownWrapper = calculatorTitle.parentElement;
+    serviceSelector.addEventListener('mousedown', () => {
+        // Ao clicar, alterna o estado da seta.
+        // O timeout garante que a ação ocorra após o comportamento padrão do navegador.
+        setTimeout(() => {
+            dropdownWrapper.classList.toggle('open');
+        }, 0);
+    });
+
+    // Garante que a seta sempre feche quando o menu perde o foco.
+    serviceSelector.addEventListener('blur', () => {
+        dropdownWrapper.classList.remove('open');
+    });
+
+    const initializeSelector = () => {
+        const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
+        serviceSelector.innerHTML = '<option value="general">Simulado</option>';
+
+        if (dashboardState && dashboardState.services) {
+            // Cria uma cópia e ordena os serviços em ordem alfabética
+            const sortedServices = [...dashboardState.services].sort((a, b) => 
+                a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })
+            );
+
+            sortedServices.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.name;
+                option.textContent = service.name;
+                serviceSelector.appendChild(option);
+            });
+        }
+
+        // Verifica se há um serviço na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const serviceFromUrl = urlParams.get('service');
+        if (serviceFromUrl && Array.from(serviceSelector.options).some(opt => opt.value === serviceFromUrl)) {
+            serviceSelector.value = serviceFromUrl;
+            // Dispara o evento 'change' para carregar o estado correto
+            serviceSelector.dispatchEvent(new Event('change'));
+        }
+        return !!serviceFromUrl; // Retorna true se um serviço foi carregado da URL
+    };
+
     // Adiciona listeners para o tooltip da Taxa Extra
     const extraTaxTooltip = document.querySelector('.extra-tax-section .info-tooltip');
     if (extraTaxTooltip) {
@@ -407,5 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // --- INICIALIZAÇÃO ---
     loadSettings();
-    loadState(); // Carrega o estado geral
+    const wasLoadedFromUrl = initializeSelector();
+    // Só carrega o estado inicial (Geral) se nenhum serviço específico foi carregado pela URL
+    if (!wasLoadedFromUrl) {
+        loadState(); // Carrega o estado geral
+        updateCalculatorState('general'); // Garante que o estado visual esteja correto para "Simulado"
+    }
 });

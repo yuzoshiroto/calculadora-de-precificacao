@@ -26,7 +26,7 @@
                 </div>
             </header>
 
-            <!-- Seção da Taxa Extra -->
+            <!-- Seção da Taxa Extra (Agora sempre visível e acima do seletor) -->
             <section class="extra-tax-section">
                 <div class="detail-card">
                     <div class="extra-tax-title-wrapper">
@@ -42,60 +42,65 @@
                 </div>
             </section>
 
-
             <div class="calculator-header-wrapper">
                 <div class="subtitle-dropdown-wrapper">
                     <h2 id="calculator-title" class="section-subtitle">Simulado</h2>
                     <select id="service-selector" class="service-selector-hidden"></select>
                 </div>
+                <!-- Status label mantido, mas controlado dinamicamente -->
                 <span id="service-status-label" class="service-status-label"></span>
             </div>
 
-            <section class="pricing-table-container">
-                <div class="table-wrapper">
-                    <table id="cost-calculator-table">
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Unid. de medida</th>
-                                <th>Preço (R$)</th>
-                                <th>Volume/Qtd.</th>
-                                <th>Preço por <span class="lowercase">g/ml</span></th>
-                                <th>Uso</th>
-                                <th>Valor da Dose (R$)</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cost-calculator-body" class="editable-table-body">
-                            <!-- Linhas de produtos serão inseridas aqui -->
-                        </tbody>
-                        <tfoot>
-                            <tr class="calculator-footer">
-                                <td colspan="6" class="total-label">
-                                    <span id="product-count-display" style="float: left;">0 produtos</span>
-                                    <span style="float: right;">Custo Total:</span>
-                                </td>
-                                <td id="total-dose-cost" class="total-value">R$ 0,00</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </section>
+            <!-- Container da Tabela e Ações -->
+            <!-- O estado 'apagado/travado' será aplicado neste container via JS -->
+            <div id="calculator-main-interface">
+                <section class="pricing-table-container">
+                    <div class="table-wrapper">
+                        <table id="cost-calculator-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Unid. de medida</th>
+                                    <th>Preço (R$)</th>
+                                    <th>Volume/Qtd.</th>
+                                    <th>Preço por <span class="lowercase">g/ml</span></th>
+                                    <th>Uso</th>
+                                    <th>Valor da Dose (R$)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cost-calculator-body" class="editable-table-body">
+                                <!-- Linhas de produtos serão inseridas aqui -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="calculator-footer">
+                                    <td colspan="6" class="total-label">
+                                        <span id="product-count-display" style="float: left;">0 produtos</span>
+                                        <span style="float: right;">Custo Total:</span>
+                                    </td>
+                                    <td id="total-dose-cost" class="total-value">R$ 0,00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
 
-            <section class="calculator-actions">
-                <button type="button" id="add-product-row-btn" class="action-btn-primary">
-                    <i class="fas fa-plus"></i> Adicionar Produto
-                </button>
-                <div class="actions-right">
-                    <button type="button" id="copy-total-btn" class="action-btn-secondary" title="Copiar valor total para a área de transferência">
-                        <i class="fas fa-copy"></i> Copiar Total
+                <section class="calculator-actions">
+                    <button type="button" id="add-product-row-btn" class="action-btn-primary">
+                        <i class="fas fa-plus"></i> Adicionar Produto
                     </button>
-                    <button type="button" id="clear-all-btn" class="action-btn-danger">
-                        <i class="fas fa-trash"></i> Limpar Tudo
-                    </button>
-                </div>
-            </section>
+                    <div class="actions-right">
+                        <button type="button" id="copy-total-btn" class="action-btn-secondary" title="Copiar valor total para a área de transferência">
+                            <i class="fas fa-copy"></i> Copiar Total
+                        </button>
+                        <button type="button" id="clear-all-btn" class="action-btn-danger">
+                            <i class="fas fa-trash"></i> Limpar Tudo
+                        </button>
+                    </div>
+                </section>
+            </div> 
+            <!-- Fim do calculator-main-interface -->
 
         </main>
     </div>

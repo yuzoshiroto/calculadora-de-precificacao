@@ -3,43 +3,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculatorTitle = document.getElementById('calculator-title');
     const serviceSelector = document.getElementById('service-selector');
     const addProductBtn = document.getElementById('add-product-row-btn');
-    const calculatorContainer = document.querySelector('.pricing-table-container');
-    const calculatorActions = document.querySelector('.calculator-actions');
     const statusLabel = document.getElementById('service-status-label');
     const clearAllBtn = document.getElementById('clear-all-btn');
     const copyTotalBtn = document.getElementById('copy-total-btn');
     const totalDoseCostEl = document.getElementById('total-dose-cost');
-
     const extraTaxInput = document.getElementById('extra-tax-input');
+
+    // Elementos de Controle de Exibição
+    const calculatorMainInterface = document.getElementById('calculator-main-interface');
+
     const GENERAL_CALCULATOR_KEY = 'productCostCalculatorState_general';
     const DASHBOARD_STATE_KEY = 'pricingAppState';
-    const SETTINGS_KEY = 'productCostCalculatorSettings'; // Chave para configurações globais da calculadora
+    const SETTINGS_KEY = 'productCostCalculatorSettings'; 
 
     let products = [];
     let editingProductId = null;
 
     let currentCalculatorKey = GENERAL_CALCULATOR_KEY;
-    let calculatorSettings = { extraTax: 0 }; // Estado para as configurações
+    let calculatorSettings = { extraTax: 0 }; 
+
     // --- FUNÇÕES DE FORMATAÇÃO E PARSE ---
     const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const parseFormattedNumber = (value) => parseFloat(String(value).replace(/\./g, '').replace(',', '.')) || 0;
     const formatNumberForDisplay = (value) => {
-        // Se o valor for 0, retorna uma string vazia para o placeholder funcionar
         if (value === 0) return '';
-        // Formata o número para o padrão brasileiro (ex: 1234.5 -> "1.234,50")
         return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // Função para sanitizar a entrada em campos numéricos, removendo caracteres não permitidos
     const sanitizeNumericOnInput = (event) => {
         const input = event.target;
         let value = input.value;
-        // Permite apenas uma vírgula
         const parts = value.split(',');
         if (parts.length > 2) {
             value = parts[0] + ',' + parts.slice(1).join('');
         }
-        // Remove qualquer caractere que não seja um dígito ou a vírgula
         input.value = value.replace(/[^0-9,]/g, '');
     };
 
@@ -77,11 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
             subTotal += pricePerGram * usage;
         });
 
-        // Aplica a taxa extra
         const extraTax = calculatorSettings.extraTax || 0;
         const total = subTotal * (1 + extraTax);
         totalDoseCostEl.textContent = formatCurrency(total);
-        // Atualiza o contador de produtos
+        
         const productCount = rows.length;
         const productCountDisplay = document.getElementById('product-count-display');
         productCountDisplay.textContent = `${productCount} ${productCount === 1 ? 'produto' : 'produtos'}`;
@@ -210,23 +206,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadState = () => {
         const savedState = localStorage.getItem(currentCalculatorKey);
-        // CORREÇÃO: Reseta o array de produtos antes de carregar um novo estado.
-        // Isso impede que os produtos do "Simulado" sejam mantidos ao trocar para um novo serviço.
         products = [];
-        tableBody.innerHTML = ''; // Limpa a tabela antes de carregar
+        tableBody.innerHTML = ''; 
+
         if (savedState) {
             const savedProducts = JSON.parse(savedState);
-            // Garante que todos os produtos tenham um ID
             products = savedProducts.map(p => p.id ? p : { ...p, id: crypto.randomUUID() });
 
+            // Se for Geral e não tiver produtos, cria default
             if (products.length === 0 && currentCalculatorKey === GENERAL_CALCULATOR_KEY) {
-                // Se não houver produtos salvos, adiciona 5 linhas vazias como na planilha
                 for (let i = 0; i < 5; i++) {
                     products.push({ id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' });
                 }
             }
         } else {
-            // Se for o primeiro acesso, adiciona 5 linhas vazias
+            // Se for primeira vez, cria 5 linhas
             for (let i = 0; i < 5; i++) {
                 products.push({ id: crypto.randomUUID(), name: '', unit: 'g', price: 0, volume: '', usage: '' });
             }
@@ -242,15 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Tem certeza que deseja limpar todos os produtos dessa calculadora?')) {
             products = [];
             editingProductId = null;
-            // Adiciona uma linha em branco para recomeçar
             addRow();
-            calculateTotal(); // Recalcula e salva o estado final
+            calculateTotal();
         }
     });
 
     copyTotalBtn.addEventListener('click', () => {
         const totalValueText = totalDoseCostEl.textContent;
-        // Extrai apenas o valor numérico formatado (ex: "15,35")
         const numericValue = parseFormattedNumber(totalValueText.replace('R$', ''));
         const valueToCopy = numericValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -314,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sanitizeNumericOnInput(e);
         }
 
-        // Live update for calculated values
         const price = parseFormattedNumber(row.querySelector('[data-col="price"]').value);
         const volume = parseFormattedNumber(row.querySelector('[data-col="volume"]').value);
         const usage = parseFormattedNumber(row.querySelector('[data-col="usage"]').value);
@@ -334,13 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
     extraTaxInput.addEventListener('change', (e) => {
         const value = parseFloat(e.target.value.replace(',', '.')) || 0;
         calculatorSettings.extraTax = value / 100;
-        // Formata o valor no campo
         e.target.value = value.toFixed(2).replace('.', ',');
         saveSettings();
         calculateTotal();
     });
 
-    // Handlers for formatted number inputs inside the table
     tableBody.addEventListener('focusin', (e) => {
         if (e.target.classList.contains('formatted-number-input')) {
             const input = e.target;
@@ -363,80 +352,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Salva a linha ao pressionar Enter em um campo de input da tabela
     tableBody.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-            e.preventDefault(); // Impede o comportamento padrão do Enter
+            e.preventDefault();
             const row = e.target.closest('tr.editing-row');
             if (row) {
-                // Simula o clique no botão de salvar da linha
                 row.querySelector('.save-row-btn')?.click();
             }
         }
     });
-    // --- LÓGICA PARA POSICIONAMENTO DINÂMICO DO TOOLTIP DA TAXA EXTRA ---
+
     function handleExtraTaxTooltipPosition(event) {
-        const tooltip = event.currentTarget; // O .info-tooltip
+        const tooltip = event.currentTarget;
         const tooltipText = tooltip.querySelector('.tooltip-text');
         
-        // Reseta a posição para o cálculo
         tooltipText.style.left = '';
         tooltipText.style.top = '';
         tooltipText.style.transform = '';
 
-        const rect = tooltip.getBoundingClientRect(); // Posição do ícone 'i' na tela
-        const tooltipRect = tooltipText.getBoundingClientRect(); // Dimensões do balão
+        const rect = tooltip.getBoundingClientRect();
+        const tooltipRect = tooltipText.getBoundingClientRect();
 
         let top, left;
-        const marginAbove = 10; // Espaço entre o ícone e o tooltip (reduzido)
+        const marginAbove = 10;
 
-        // Verifica se a tela está na faixa de resolução onde o zoom é aplicado (1441px a 1920px)
         if (window.matchMedia('(min-width: 1441px) and (max-width: 1920px)').matches) {
-            const zoomFactor = 0.9; // Assumindo que o zoom é 90%
-            // Calcula a posição considerando o zoom
+            const zoomFactor = 0.9;
             top = (rect.top / zoomFactor) - (tooltipRect.height / zoomFactor) - (marginAbove / zoomFactor);
             left = (rect.left / zoomFactor) + (rect.width / 1.6 / zoomFactor) - (tooltipRect.width / 1.6 / zoomFactor);
         } else {
-            // Lógica de cálculo original, SEM correção de zoom
             top = rect.top - tooltipRect.height - marginAbove;
             left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
         }
 
-        // Define a posição final do balão
         tooltipText.style.top = `${top}px`;
         tooltipText.style.left = `${left}px`;
     }
 
+    // --- NOVA LÓGICA DE SINCRONIZAÇÃO E EXIBIÇÃO ---
     const updateCalculatorState = (serviceName) => {
+        // Reseta o visual para o padrão (Simulado/Geral)
+        statusLabel.style.display = 'none';
+        
+        // Se for "Simulado" ou "Geral"
+        if (serviceName === 'general') {
+            calculatorMainInterface.classList.remove('calculator-faded-locked');
+            return;
+        }
+
+        // Busca o serviço no estado do Dashboard
         const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
         const service = dashboardState?.services.find(s => s.name === serviceName);
 
-        // Reseta para o estado padrão antes de aplicar as novas regras
-        statusLabel.style.display = 'none';
-        calculatorContainer.classList.remove('disabled-calculator');
-        calculatorActions.classList.remove('disabled-calculator');
+        if (!service) {
+            calculatorMainInterface.classList.remove('calculator-faded-locked');
+            return;
+        }
 
-        if (isServiceCalculator() && service) {
-            if (service.productOrigin === 'professional') {
-                // Trava a calculadora e exibe a mensagem
-                statusLabel.textContent = 'Calculadora travada para "Produto do Profissional"';
-                calculatorContainer.classList.add('disabled-calculator');
-                calculatorActions.classList.add('disabled-calculator');
-            } else {
-                // Exibe o status normal para "Produto do Salão" ou "Cliente"
-                const originMap = {
-                    salon: 'Produto do Salão',
-                    client: 'Produto do Cliente'
-                };
-                statusLabel.textContent = originMap[service.productOrigin] || '';
-            }
-            statusLabel.style.display = 'inline-block'; // Mostra a etiqueta de status
+        // Lógica de exibição baseada na origem do produto
+        if (service.productOrigin === 'professional') {
+            // Exibe a tabela, mas com visual 'apagado' e 'travado'
+            calculatorMainInterface.classList.add('calculator-faded-locked');
+            
+            statusLabel.textContent = 'Produto do Profissional';
+            statusLabel.style.display = 'inline-block';
+
+        } else if (service.productOrigin === 'client') {
+            // Produto do Cliente agora se comporta como Produto do Salão (pode editar)
+            calculatorMainInterface.classList.remove('calculator-faded-locked');
+
+            statusLabel.textContent = 'Produto do Cliente';
+            statusLabel.style.display = 'inline-block';
+
+        } else {
+            // Caso 'salon' (Produto do Salão)
+            calculatorMainInterface.classList.remove('calculator-faded-locked');
+
+            statusLabel.textContent = 'Produto do Salão';
+            statusLabel.style.display = 'inline-block';
         }
     };
 
     serviceSelector.addEventListener('change', (e) => {
         const selectedService = e.target.value;
         const url = new URL(window.location);
+        
         if (selectedService === 'general') {
             calculatorTitle.textContent = 'Simulado';
             currentCalculatorKey = GENERAL_CALCULATOR_KEY;
@@ -446,26 +446,27 @@ document.addEventListener('DOMContentLoaded', () => {
             currentCalculatorKey = `productCostCalculatorState_${selectedService}`;
             url.searchParams.set('service', selectedService);
         }
-        history.replaceState({}, '', url); // Atualiza a URL sem criar nova entrada no histórico
+        
+        history.replaceState({}, '', url);
+        
+        // Atualiza a interface baseada no tipo de serviço (Sincronização Real)
+        updateCalculatorState(selectedService);
+
+        // Carrega os dados (se a interface estiver visível)
         tableBody.innerHTML = '';
-        loadState(); // Carrega o estado do serviço selecionado
-        // Garante que a seta feche ao selecionar um item
+        loadState();
+        
         const dropdownWrapper = calculatorTitle.parentElement;
         dropdownWrapper.classList.remove('open');
-        updateCalculatorState(selectedService);
     });
 
-    // Controla a seta do dropdown
     const dropdownWrapper = calculatorTitle.parentElement;
     serviceSelector.addEventListener('mousedown', () => {
-        // Ao clicar, alterna o estado da seta.
-        // O timeout garante que a ação ocorra após o comportamento padrão do navegador.
         setTimeout(() => {
             dropdownWrapper.classList.toggle('open');
         }, 0);
     });
 
-    // Garante que a seta sempre feche quando o menu perde o foco.
     serviceSelector.addEventListener('blur', () => {
         dropdownWrapper.classList.remove('open');
     });
@@ -475,7 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
         serviceSelector.innerHTML = '<option value="general">Simulado</option>';
 
         if (dashboardState && dashboardState.services) {
-            // Cria uma cópia e ordena os serviços em ordem alfabética
             const sortedServices = [...dashboardState.services].sort((a, b) => 
                 a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })
             );
@@ -488,29 +488,32 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Verifica se há um serviço na URL
         const urlParams = new URLSearchParams(window.location.search);
         const serviceFromUrl = urlParams.get('service');
         if (serviceFromUrl && Array.from(serviceSelector.options).some(opt => opt.value === serviceFromUrl)) {
             serviceSelector.value = serviceFromUrl;
-            // Dispara o evento 'change' para carregar o estado correto
-            serviceSelector.dispatchEvent(new Event('change'));
+            // Configura o título inicial
+            calculatorTitle.textContent = serviceFromUrl;
+            currentCalculatorKey = `productCostCalculatorState_${serviceFromUrl}`;
+            
+            // Sincroniza o estado inicial
+            updateCalculatorState(serviceFromUrl);
+        } else {
+            // Estado inicial padrão (Simulado)
+            updateCalculatorState('general');
         }
-        return !!serviceFromUrl; // Retorna true se um serviço foi carregado da URL
+        return !!serviceFromUrl;
     };
 
-    // Adiciona listeners para o tooltip da Taxa Extra
     const extraTaxTooltip = document.querySelector('.extra-tax-section .info-tooltip');
     if (extraTaxTooltip) {
         extraTaxTooltip.addEventListener('mouseenter', handleExtraTaxTooltipPosition);
-        extraTaxTooltip.addEventListener('mouseover', handleExtraTaxTooltipPosition); // Garante o reposicionamento
+        extraTaxTooltip.addEventListener('mouseover', handleExtraTaxTooltipPosition);
     }
+
     // --- INICIALIZAÇÃO ---
     loadSettings();
-    const wasLoadedFromUrl = initializeSelector();
-    // Só carrega o estado inicial (Geral) se nenhum serviço específico foi carregado pela URL
-    if (!wasLoadedFromUrl) {
-        loadState(); // Carrega o estado geral
-        updateCalculatorState('general'); // Garante que o estado visual esteja correto para "Simulado"
-    }
+    initializeSelector(); 
+    // Carrega o estado inicial das linhas da tabela
+    loadState();
 });

@@ -390,19 +390,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- NOVA LÓGICA DE SINCRONIZAÇÃO E EXIBIÇÃO ---
-    const updateCalculatorState = (serviceName) => {
+    const updateCalculatorState = (serviceId) => {
         // Reseta o visual para o padrão (Simulado/Geral)
         statusLabel.style.display = 'none';
         
         // Se for "Simulado" ou "Geral"
-        if (serviceName === 'general') {
+        if (serviceId === 'general') {
             calculatorMainInterface.classList.remove('calculator-faded-locked');
             return;
         }
 
         // Busca o serviço no estado do Dashboard
         const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
-        const service = dashboardState?.services.find(s => s.name === serviceName);
+        const service = dashboardState?.services.find(s => s.id === serviceId);
 
         if (!service) {
             calculatorMainInterface.classList.remove('calculator-faded-locked');
@@ -434,23 +434,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     serviceSelector.addEventListener('change', (e) => {
-        const selectedService = e.target.value;
+        const selectedServiceId = e.target.value;
         const url = new URL(window.location);
+        const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
         
-        if (selectedService === 'general') {
+        if (selectedServiceId === 'general') {
             calculatorTitle.textContent = 'Simulado';
             currentCalculatorKey = GENERAL_CALCULATOR_KEY;
-            url.searchParams.delete('service');
+            url.searchParams.delete('serviceId');
         } else {
-            calculatorTitle.textContent = selectedService;
-            currentCalculatorKey = `productCostCalculatorState_${selectedService}`;
-            url.searchParams.set('service', selectedService);
+            const service = dashboardState?.services.find(s => s.id === selectedServiceId);
+            if (service) {
+                calculatorTitle.textContent = service.name;
+                currentCalculatorKey = `productCostCalculatorState_${service.id}`;
+                url.searchParams.set('serviceId', selectedServiceId);
+            } else {
+                // Fallback se o serviço não for encontrado
+                calculatorTitle.textContent = 'Simulado';
+                currentCalculatorKey = GENERAL_CALCULATOR_KEY;
+                url.searchParams.delete('serviceId');
+            }
         }
         
-        history.replaceState({}, '', url);
+        history.pushState({}, '', url); // Use pushState para permitir voltar
         
         // Atualiza a interface baseada no tipo de serviço (Sincronização Real)
-        updateCalculatorState(selectedService);
+        updateCalculatorState(selectedServiceId);
 
         // Carrega os dados (se a interface estiver visível)
         tableBody.innerHTML = '';
@@ -471,6 +480,24 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownWrapper.classList.remove('open');
     });
 
+    const migrateLocalStorageKeys = (services) => {
+        if (!services || services.length === 0) return;
+
+        services.forEach(service => {
+            const oldKey = `productCostCalculatorState_${service.name}`;
+            const newKey = `productCostCalculatorState_${service.id}`;
+
+            const oldData = localStorage.getItem(oldKey);
+
+            // Se a chave antiga existe e a nova não, faz a migração
+            if (oldData && !localStorage.getItem(newKey)) {
+                console.log(`Migrando dados de produto de "${service.name}" para o novo formato de ID.`);
+                localStorage.setItem(newKey, oldData);
+                localStorage.removeItem(oldKey);
+            }
+        });
+    };
+
     const initializeSelector = () => {
         const dashboardState = JSON.parse(localStorage.getItem(DASHBOARD_STATE_KEY));
         serviceSelector.innerHTML = '<option value="general">Simulado</option>';
@@ -482,27 +509,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             sortedServices.forEach(service => {
                 const option = document.createElement('option');
-                option.value = service.name;
+                option.value = service.id; // USA O ID
                 option.textContent = service.name;
                 serviceSelector.appendChild(option);
             });
+
+            // Roda a migração de chaves do localStorage
+            migrateLocalStorageKeys(dashboardState.services);
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const serviceFromUrl = urlParams.get('service');
-        if (serviceFromUrl && Array.from(serviceSelector.options).some(opt => opt.value === serviceFromUrl)) {
-            serviceSelector.value = serviceFromUrl;
+        const serviceIdFromUrl = urlParams.get('serviceId');
+        const serviceFromUrl = dashboardState?.services.find(s => s.id === serviceIdFromUrl);
+
+        if (serviceFromUrl) {
+            serviceSelector.value = serviceIdFromUrl;
             // Configura o título inicial
-            calculatorTitle.textContent = serviceFromUrl;
-            currentCalculatorKey = `productCostCalculatorState_${serviceFromUrl}`;
+            calculatorTitle.textContent = serviceFromUrl.name;
+            currentCalculatorKey = `productCostCalculatorState_${serviceIdFromUrl}`;
             
             // Sincroniza o estado inicial
-            updateCalculatorState(serviceFromUrl);
+            updateCalculatorState(serviceIdFromUrl);
         } else {
             // Estado inicial padrão (Simulado)
             updateCalculatorState('general');
         }
-        return !!serviceFromUrl;
+        return !!serviceIdFromUrl;
     };
 
     const extraTaxTooltip = document.querySelector('.extra-tax-section .info-tooltip');

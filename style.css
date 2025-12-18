@@ -934,6 +934,16 @@ td input[type="text"].formatted-number-input:focus {
     border-color: var(--text-primary);
 }
 
+/* Estilo para o input de nome do serviço na tabela */
+.service-name-input.text-input {
+    width: 100%;
+    box-sizing: border-box; /* Garante que padding não aumente a largura */
+    padding: 5px 8px; /* Adiciona o mesmo padding dos outros inputs */
+}
+
+/* Garante que a célula do nome não encolha no modo de visualização */
+.service-name-cell { min-width: 200px; }
+
 #fixed-cost-table td input,
 #variable-cost-table td input,
 #pricing-table-body td input {

@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 row.innerHTML = /*html*/`
-                    <td>${service.name}</td>
+                    <td><input type="text" class="service-name-input text-input" value="${service.name}"></td>
                     <td>
                         <div class="input-with-prefix"><span>R$</span><input type="text" class="current-price-input formatted-number-input number-input" value="${formatNumberForDisplay(service.currentPrice)}" data-raw-value="${service.currentPrice.toFixed(2)}"></div>
                     </td>
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             } else {
                 row.innerHTML = `
-                    <td>${service.name}</td>
+                    <td class="service-name-cell">${service.name}</td>
                     <td>${formatCurrency(service.currentPrice)}</td>
                     <td>${productCostCellContent}</td>
                     <td>${(service.commission * 100).toFixed(2)}%</td>
@@ -1157,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Define o link do botão da calculadora, passando o nome do serviço na URL
-        calculatorBtn.href = `product_cost_calculator.html?service=${encodeURIComponent(service.name)}`;
+        calculatorBtn.href = `product_cost_calculator.html?serviceId=${service.id}`;
 
         // Controla a visibilidade dos containers de custo
         // A visibilidade do botão da calculadora está atrelada ao container de custo padrão
@@ -1223,6 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.querySelector(`tr[data-service-id="${serviceId}"]`);
         if (!row) return;
 
+        const nameInput = row.querySelector('.service-name-input');
         const priceInput = row.querySelector('.current-price-input');
         const costInput = row.querySelector('.product-cost-input');
         const commissionInput = row.querySelector('.commission-input');
@@ -1233,12 +1234,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const service = appState.services.find(s => s.id === serviceId);
         if (!service) return;
         // Lê os valores dos campos
+        const newName = nameInput.value.trim();
         const newPrice = parseFormattedNumber(priceInput.value);
         const newCommission = parseFloat(commissionInput.value.replace(',', '.')) / 100;
         const newAdminFeeType = adminFeeToggleGroup.dataset.unitType;
         let newAdminFee = parseFormattedNumber(adminFeeInput.value);
         if (newAdminFeeType === 'percent') {
             newAdminFee = newAdminFee / 100;
+        }
+
+        if (!newName) {
+            alert('O nome do serviço não pode ficar em branco.');
+            nameInput.focus();
+            return;
         }
 
         // Atualiza os valores do serviço
@@ -1252,6 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isNaN(newCost)) service.productCost = newCost;
         }
 
+        service.name = newName;
         // Atualiza o tipo da taxa
         service.adminFeeType = newAdminFeeType;
 

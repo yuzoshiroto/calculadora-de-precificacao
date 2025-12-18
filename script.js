@@ -309,23 +309,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Formata a taxa administrativa para exibição
             let adminFeeDisplay;
-            if (service.adminFeeType === 'real') {
-                adminFeeDisplay = formatCurrency(service.adminFee || 0);
-            } else {
-                adminFeeDisplay = `${((service.adminFee || 0) * 100).toFixed(2)}%`;
-            }
+            const adminFeeValueForDisplay = service.adminFee || 0;
+            adminFeeDisplay = service.adminFeeType === 'real'
+                ? formatCurrency(adminFeeValueForDisplay)
+                : `${(adminFeeValueForDisplay * 100).toFixed(2)}%`;
 
             // Prepara o valor e o placeholder para o campo de edição da taxa admin.
-            let adminFeeEditValue = '';
-            let adminFeeEditRawValue = '0';
-            if (service.adminFee > 0) {
-                if (service.adminFeeType === 'real') {
-                    adminFeeEditValue = formatNumberForDisplay(service.adminFee);
-                    adminFeeEditRawValue = service.adminFee.toFixed(2);
-                } else { // percent
-                    adminFeeEditValue = formatNumberForDisplay(service.adminFee * 100);
-                    adminFeeEditRawValue = (service.adminFee * 100).toFixed(2);
-                }
+            let adminFeeEditValue, adminFeeEditRawValue;
+            if (service.adminFeeType === 'real') {
+                adminFeeEditValue = formatNumberForDisplay(adminFeeValueForDisplay);
+                adminFeeEditRawValue = adminFeeValueForDisplay.toFixed(2);
+            } else { // percent
+                adminFeeEditValue = formatNumberForDisplay(adminFeeValueForDisplay * 100);
+                adminFeeEditRawValue = (adminFeeValueForDisplay * 100).toFixed(2);
             }
 
             // Renderiza campos de input ou texto simples dependendo do modo de edição

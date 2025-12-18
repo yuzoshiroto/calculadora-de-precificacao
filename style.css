@@ -2091,7 +2091,7 @@ tbody tr.drag-over {
 
     .sidebar-sticky-content {
         overflow-y: auto;
-        height: calc(100vh - 170px);
+        height: calc(100vh - 180px);
         top: 140px;
         width: 240px;
     }

@@ -183,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="input-wrapper">
                     ${tooltipHtml}
                     <div class="input-with-symbol">
-                        <input type="number" id="param-${key}" data-param="${key}" value="${formatPercentageForInput(appState.parameters[key])}" step="0.1">
-                        <span>%</span>
+                        <input type="text" id="param-${key}" data-param="${key}" class="formatted-number-input" value="${formatNumberForParamInput(appState.parameters[key] * 100)}" data-raw-value="${(appState.parameters[key] * 100).toFixed(2)}">
+                        <span class="percent-symbol">%</span>
                     </div>
                 </div>
             `;
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         totalContainer.className = 'param-item param-total';
         totalContainer.innerHTML = `
             <label>Custos Totais</label>
-            <span id="total-costs-value">0.00%</span>
+            <span id="total-costs-value">0,00%</span>
         `;
         container.appendChild(totalContainer);
 
@@ -893,6 +893,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    // Formata um número para os inputs de parâmetros, mostrando inteiro se não houver casas decimais.
+    function formatNumberForParamInput(value) {
+        // Verifica se o número é inteiro (ex: 10.00)
+        if (value % 1 === 0) {
+            return value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        // Caso contrário, formata com 2 casas decimais
+        return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function parseFormattedNumber(value) {
         // Remove pontos e substitui vírgula por ponto
         return parseFloat(String(value).replace(/\./g, '').replace(',', '.')) || 0;
@@ -941,11 +951,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleParamChange(event) {
+        const input = event.target;
         const key = event.target.dataset.param;
-        const value = parseFloat(event.target.value) / 100;
+        const value = parseFormattedNumber(input.value) / 100;
         if (!isNaN(value)) {
             appState.parameters[key] = value;
-            fullRecalculateAndRender();
+            calculateAllMetrics(); // Apenas recalcula os dados
         }
     }
 
@@ -1297,7 +1308,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const rawValue = parseFormattedNumber(input.value);
                 input.dataset.rawValue = rawValue.toFixed(2);
-                input.value = formatNumberForDisplay(rawValue);
+                // Se o input pertence aos parâmetros globais, usa a formatação especial
+                if (input.closest('#financial-params')) {
+                    input.value = formatNumberForParamInput(rawValue);
+                } else {
+                    input.value = formatNumberForDisplay(rawValue);
+                }
             }
         }
     }
@@ -1468,7 +1484,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Listener global para campos numéricos
         document.addEventListener('keydown', handleInvalidNumberChars);
 
-        document.getElementById('financial-params').addEventListener('input', handleParamChange);
+        const financialParamsContainer = document.getElementById('financial-params');
+        financialParamsContainer.addEventListener('input', (e) => {
+            if (e.target.classList.contains('formatted-number-input')) {
+                sanitizeNumericOnInput(e);
+                handleParamChange(e); // Processa a mudança
+                updateTotalCostsDisplay(); // Atualiza o total em tempo real
+            }
+        });
+        financialParamsContainer.addEventListener('focusin', handleInputFocus);
+        financialParamsContainer.addEventListener('focusout', handleInputBlur);
         document.getElementById('pricing-table-body').addEventListener('focusin', handleInputFocus);
         document.getElementById('pricing-table-body').addEventListener('focusout', handleInputBlur);
 
@@ -1589,9 +1614,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-product-origin').addEventListener('change', toggleModalPositioningField);
         // Adiciona sanitização no input para o campo de custo no modal
         document.getElementById('modal-product-cost').addEventListener('input', sanitizeNumericOnInput);
-
-        // Adiciona sanitização para os parâmetros globais
-        document.getElementById('financial-params').addEventListener('input', sanitizeNumericOnInput);
 
         // Adiciona listeners para os tooltips
         document.querySelectorAll('.info-tooltip').forEach(tooltip => {

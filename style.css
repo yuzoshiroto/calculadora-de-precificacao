@@ -2101,13 +2101,13 @@ tbody tr.drag-over {
     }
 }
 
-@media (min-width: 1441px) and (max-width: 1920px) {
+@media (min-width: 1601px) and (max-width: 1920px) {
     #params-form {
         zoom: 0.9;
     }
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 1600px) {
     html {
         font-size: 70%;
     }
@@ -2565,7 +2565,7 @@ tbody tr.drag-over {
     font-size: 0.85rem;
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 1600px) {
     .extra-tax-section #extra-tax-input {
         width: 75px;
         padding: 8px 22px 8px 8px;

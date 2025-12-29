@@ -2242,67 +2242,6 @@ tbody tr.drag-over {
         display: none;
     }
 
-    /* --- Estilos da Sidebar Retrátil --- */
-    .sidebar-toggle-btn {
-        position: fixed;
-        top: 360px;
-        left: 219px;
-        width: 30px;
-        height: 30px;
-        background-color: var(--bg-lighter);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-        transition: transform 0.3s ease, left 0.3s ease;
-    }
-
-    .sidebar-toggle-btn:hover {
-        background-color: var(--primary);
-    }
-
-    .sidebar-toggle-btn i {
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-        width: 0 !important;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .sidebar-content-wrapper {
-        overflow: hidden;
-    }
-
-    .sidebar.collapsed .sidebar-content-wrapper {
-        opacity: 0;
-    }
-
-    .sidebar.collapsed .logo {
-        transform: translateX(-100%);
-        opacity: 0;
-        width: 234px !important;
-    }
-
-    .sidebar.collapsed .sidebar-sticky-content {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-
-    .sidebar.collapsed .sidebar-toggle-btn {
-        right: auto;
-        left: -10px;
-    }
-
-    .sidebar.collapsed .sidebar-toggle-btn i {
-        transform: rotate(180deg);
-    }
-
     .pricing-table-container .current-price-input,
     .pricing-table-container .product-cost-input {
         width: 60px !important;
@@ -2575,6 +2514,69 @@ tbody tr.drag-over {
     .extra-tax-section .input-with-symbol::after {
         font-size: 1.2rem;
         right: 10px;
+    }
+}
+
+@media (max-width: 1440px) {
+    /* --- Estilos da Sidebar Retrátil --- */
+    .sidebar-toggle-btn {
+        position: fixed;
+        top: 360px;
+        left: 219px;
+        width: 30px;
+        height: 30px;
+        background-color: var(--bg-lighter);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        transition: transform 0.3s ease, left 0.3s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background-color: var(--primary);
+    }
+
+    .sidebar-toggle-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+        width: 0 !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar-content-wrapper {
+        overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-content-wrapper {
+        opacity: 0;
+    }
+
+    .sidebar.collapsed .logo {
+        transform: translateX(-100%);
+        opacity: 0;
+        width: 234px !important;
+    }
+
+    .sidebar.collapsed .sidebar-sticky-content {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    .sidebar.collapsed .sidebar-toggle-btn {
+        right: auto;
+        left: -10px;
+    }
+
+    .sidebar.collapsed .sidebar-toggle-btn i {
+        transform: rotate(180deg);
     }
 }
 

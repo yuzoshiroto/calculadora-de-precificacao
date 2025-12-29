@@ -956,7 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const value = parseFormattedNumber(input.value) / 100;
         if (!isNaN(value)) {
             appState.parameters[key] = value;
-            calculateAllMetrics(); // Apenas recalcula os dados
+            fullRecalculateAndRender(); // Recalcula e atualiza a interface
         }
     }
 

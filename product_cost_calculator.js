@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calculateTotal = () => {
         let subTotal = 0;
-        const rows = tableBody.querySelectorAll('tr');
         products.forEach(product => {
             const price = parseFloat(product.price) || 0;
             const volume = parseFloat(product.volume) || 0;
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = subTotal * (1 + extraTax);
         totalDoseCostEl.textContent = formatCurrency(total);
         
-        const productCount = rows.length;
+        const productCount = products.length;
         const productCountDisplay = document.getElementById('product-count-display');
         productCountDisplay.textContent = `${productCount} ${productCount === 1 ? 'produto' : 'produtos'}`;
 
